@@ -1,0 +1,46 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/add_image"
+        android:title="@string/add_image_title"
+        app:showAsAction="never"
+        
+        />
+
+    <item
+        android:id="@+id/menu_language"
+        android:title="@string/language_title"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/add_pdf"
+        android:title="@string/add_pdf_title"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/sort_image"
+        android:title="@string/sort_image"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/switch_item"
+        android:title="@string/voice_assistant"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/add_bundle"
+        android:title="@string/add_bundle"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/export_bundle"
+        android:title="@string/export_bundle"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/calendar"
+        android:title="@string/calendar"
+        app:showAsAction="never" />
+
+
+
+</menu>

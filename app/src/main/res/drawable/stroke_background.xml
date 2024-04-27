@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- stroke_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- Solid background color -->
+    <solid android:color="@color/primary" />
+    <!-- Stroke properties -->
+    <stroke
+        android:width="2dp"
+        android:color="@color/secondary" /> <!-- Define your stroke color here -->
+    <!-- Corner radius for rounded corners (optional) -->
+</shape>

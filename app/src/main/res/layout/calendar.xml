@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:theme="@style/ComunicatorThame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:screenOrientation="landscape"
+    android:background="@color/background"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    tools:ignore="MissingDefaultResource">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="118dp"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="120dp"
+            android:gravity="center">
+
+            <!-- Day buttons -->
+            <RadioGroup
+                android:id="@+id/dayGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_horizontal">
+
+                <RadioButton
+                    android:id="@+id/monday"
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:text="@string/monday"
+                    android:textColor="@color/secondary"
+                    android:button="@drawable/day_button_selector"
+                    android:background="@drawable/day_button_selector"
+                    android:gravity="center"/>
+
+                <RadioButton
+                    android:id="@+id/tuesday"
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:text="@string/tuesday"
+                    android:textColor="@color/secondary"
+                    android:button="@drawable/day_button_selector"
+                    android:background="@drawable/day_button_selector"
+                    android:gravity="center"/>
+
+                <RadioButton
+                    android:id="@+id/wednesday"
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:text="@string/wednesday"
+                    android:textColor="@color/secondary"
+                    android:button="@drawable/day_button_selector"
+                    android:background="@drawable/day_button_selector"
+                    android:gravity="center"/>
+
+
+                <RadioButton
+                    android:id="@+id/thursday"
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:text="@string/thursday"
+                    android:textColor="@color/secondary"
+                    android:button="@drawable/day_button_selector"
+                    android:background="@drawable/day_button_selector"
+                    android:gravity="center"/>
+
+
+                <RadioButton
+                    android:id="@+id/friday"
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:text="@string/friday"
+                    android:textColor="@color/secondary"
+                    android:button="@drawable/day_button_selector"
+                    android:background="@drawable/day_button_selector"
+                    android:gravity="center"/>
+
+
+                <RadioButton
+                    android:id="@+id/saturday"
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:text="@string/saturday"
+                    android:textColor="@color/secondary"
+                    android:button="@drawable/day_button_selector"
+                    android:background="@drawable/day_button_selector"
+                    android:gravity="center"/>
+
+
+                <RadioButton
+                    android:id="@+id/sunday"
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:text="@string/sunday"
+                    android:textColor="@color/secondary"
+                    android:button="@drawable/day_button_selector"
+                    android:background="@drawable/day_button_selector"
+                    android:gravity="center"/>
+                <!-- Add similar RadioButtons for other days of the week -->
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+
+        <ImageButton
+            android:id="@+id/deleteButton"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="end"
+            android:scaleType="centerCrop"
+            android:src="@drawable/delete_button"
+            />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="0dp"
+        android:background="@drawable/stroke_background">
+
+        <!-- Selected Images Container -->
+        <LinearLayout
+            android:id="@+id/selectedView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.9"
+            android:orientation="vertical">
+
+
+        </LinearLayout>
+
+        <!-- RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="0dp"
+            android:background="@color/background"
+            android:layout_marginTop="2dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.1" />
+    </LinearLayout>
+
+</LinearLayout>

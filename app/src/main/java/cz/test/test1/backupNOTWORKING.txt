@@ -1,0 +1,1913 @@
+package cz.test.test1;
+
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_MEDIA_IMAGES;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
+import android.provider.OpenableColumns;
+import android.speech.tts.TextToSpeech;
+import android.text.InputType;
+import android.text.TextUtils;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.Patterns;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+
+public class MainActivity extends AppCompatActivity implements GalleryAdapter.OnItemClickListener {
+    RecyclerView recyclerView;
+    ArrayList<String> images;
+    GalleryAdapter adapter;
+    GridLayoutManager manager;
+    private HashMap<String, String> imageLabelMap;
+    private ArrayList<String> imageLables;
+    public int[] ids;
+    public String[] labels;
+    public int[] counts;
+    public String[] imageNames;
+
+
+    private int dataCount = 0;
+    private final ArrayList<String> selectedImages = new ArrayList<>();
+    private LinearLayout selectedImagesContainer;
+    private ImageButton deleteButton; // Added this line
+
+    private static final int PERMISSION_REQUEST_CODE = 100;
+    TextToSpeech tts;
+
+
+    public boolean speak = true;
+    public boolean lanEn = true;
+
+
+    String StringCancel = "Cancel";
+    String StringMaxImages = "Maximum number of images: ";
+    String StringVoice = "Voice Assist: ON";
+    String StringEmptyLabel = "Label can not be empty";
+
+    private boolean deleteImageMode = false;
+
+    public String getData = null;
+
+    public String T_Username = "user";
+
+    public boolean clientRegistered = false;
+
+    public String Useremail = null;
+    public String Userusername = null;
+
+
+    private static final String SETTINGS_FILE = "app_settings.json";
+    private static final String TAG = "MainActivity";
+    private static final int REQUEST_CODE_SELECT_FILE = 2;
+
+
+
+
+    int desiredColumnWidthDP = 200;
+    int desiredColumnHeightDP = 230;
+
+
+    int desiredImageWidthDP = 200;
+    int dpWidth = 200; // Initial width in dp
+    int dpHeight = 200; // Initial height in dp
+
+
+
+
+    public boolean deleteMode = false;
+
+    public boolean displayImages = true;
+    private Menu menu;
+
+    public int ColumnsNumber = 0;
+
+
+    @SuppressLint("MissingInflatedId")
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        selectedImagesContainer = findViewById(R.id.selectedImagesContainer);
+        deleteButton = findViewById(R.id.deleteButton); // Added this line
+        recyclerView = findViewById(R.id.gallery_recycler);
+
+        images = new ArrayList<>();
+        imageLables = new ArrayList<>();
+        adapter = new GalleryAdapter(this, images, this, imageLables);
+        imageLabelMap = new HashMap<>(); // Initialize the imageLabelMap
+
+        if (isTablet()) {
+            Toast.makeText(this, "Tablet Layout", Toast.LENGTH_SHORT).show();
+            desiredColumnWidthDP = 200;
+            desiredColumnHeightDP = 230;
+        } else {
+            Toast.makeText(this, "Normal Layout", Toast.LENGTH_SHORT).show();
+            desiredColumnWidthDP = 120;
+            desiredColumnHeightDP = 140;
+        }
+
+        // Calculate the number of columns based on the screen width and desired column width
+        float density = getResources().getDisplayMetrics().density;
+        int columnWidth = (int) (desiredColumnWidthDP * density);
+        int columnHeight = (int) (desiredColumnHeightDP * density);
+
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int numColumns = screenWidth / columnWidth;
+        ColumnsNumber = numColumns - 1;
+
+        manager = new GridLayoutManager(this, numColumns);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setAdapter(adapter);
+
+        recyclerView.setLayoutManager(manager);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                // Perform image preloading in the background
+                new PreloadImagesTask().execute();
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            private static final long DOUBLE_CLICK_TIME_DELTA = 300; // set to 3000 milliseconds (3 seconds)
+            private long lastClickTime = 0;
+            private int clickCount = 0;
+
+            @Override
+            public void onClick(View v) {
+                long clickTime = System.currentTimeMillis();
+
+                if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+                    clickCount++;
+                    displayImages = true;
+
+                    if (clickCount >= 5) {
+                        // If the delete button is clicked 5 times, show the settings menu
+                        showSettingsMenu(deleteButton);
+                        clickCount = 0;  // Reset the count after showing the menu
+                        displayImages = true;
+                    }
+                } else {
+                    // Handle your existing single-click logic here
+                    selectedImagesContainer.removeAllViews();
+                    selectedImages.clear();
+                    adapter.updateData(images, imageLables);
+                    loadLabelsFromCSV();
+                    loadImages(imageLables);
+                    adapter.notifyDataSetChanged();
+                    clickCount = 1;
+                    displayImages = true;
+                }
+
+                lastClickTime = clickTime;
+            }
+        });
+
+        checkPermissionsRead();
+        loadSettings();
+        sortCSVByCount();
+        sortImagesByCount();
+        readCSV();
+        entsureImagesFolderExists();
+        loadLabelsFromCSV();
+        loadImages(imageLables);
+        startPeriodicTask();
+
+        if (!clientRegistered) {
+            registerClient();
+        }
+    }
+
+    private class PreloadImagesTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            int firstVisibleItemPosition = manager.findFirstVisibleItemPosition();
+            int lastVisibleItemPosition = manager.findLastVisibleItemPosition();
+
+            // Preload images within the visible range plus a predefined count
+            for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition + GalleryAdapter.PRELOAD_COUNT; i++) {
+                adapter.preloadImage(i);
+            }
+            return null;
+        }
+    }
+
+
+    private boolean isTablet() {
+        Configuration config = getResources().getConfiguration();
+        return (config.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
+    private final Handler handlerSortCSV = new Handler();
+    private final Runnable sortCSVRunnable = new Runnable() {
+        @Override
+        public void run() {
+            // Call your method to sort CSV by count
+            sortCSVByCount();
+            sortImagesByCount();
+            Log.i("Main Activity", "Sorted by the Timer");
+
+            // Schedule the task to run again after an minute
+            handlerSortCSV.postDelayed(this, TimeUnit.MINUTES.toMillis(10));
+        }
+    };
+
+    class ImageInfo {
+        private final int id;
+        private final String label;
+        private final int count;
+        private final String imageName;
+
+        public ImageInfo(int id, String label, int count, String imageName) {
+            this.id = id;
+            this.label = label;
+            this.count = count;
+            this.imageName = imageName;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public String getImageName() {
+            return imageName;
+        }
+    }
+
+    static class CSVUtils {
+        private static final char DEFAULT_SEPARATOR = ',';
+
+        static void writeLine(FileWriter writer, String[] values) throws IOException {
+            writeLine(writer, values, DEFAULT_SEPARATOR, ' ');
+        }
+
+        private static void writeLine(FileWriter writer, String[] values, char separators, char customQuote) throws IOException {
+            boolean first = true;
+            // default customQuote is empty
+            if (values.length > 0) {
+                for (String value : values) {
+                    if (!first) {
+                        writer.append(separators);
+                    }
+                    if (customQuote == ' ') {
+                        writer.append(followCVSformat(value));
+                    } else {
+                        writer.append(customQuote).append(followCVSformat(value)).append(customQuote);
+                    }
+                    first = false;
+                }
+                writer.append('\n');
+            }
+        }
+
+        private static String followCVSformat(String value) {
+            String result = value;
+            if (result.contains("\"")) {
+                result = result.replace("\"", "\"\"");
+            }
+            return result;
+        }
+    }
+
+    private File destinationFile;
+    private int imageIdCounter;
+    String[] cz = {"Přidat Obrázek", "Jazyk: CZ", "Odstranit Obrázek", "Seřadit Obrázky", "Hlas Zapnutý", "Hlas Vypnutý", "Zrušit", "Popisek nemůže být prázdný", "Zamítli jste oprávnění", "Maximální počet obrázků: ", "Přidat sestavu", "Exportovat sestavu"};
+    String[] en = {"Add Image", "Language: EN", "Delete Image", "Sort Image", "Voice Assist: ON", "Voice Assist: OFF", "Cancel", "Label can not be empty", "You have dined the permission", "Maximum number of images: ", "Add Bundle", "Export Bundle"};
+
+    private void loadSettings() {
+        try {
+            // Read JSON from file
+            JSONObject json = readJsonFromFile();
+            if (json != null) {
+                // Parse JSON into AppSettings
+                AppSettings appSettings = AppSettings.fromJson(json);
+                if (appSettings != null) {
+                    // Apply settings
+                    speak = appSettings.isSpeak();
+                    lanEn = appSettings.isLanEn();
+                    clientRegistered = appSettings.isclRegistered();
+                    Userusername = String.valueOf(appSettings.isUserusername());
+                    Useremail = String.valueOf(appSettings.isUseremail());
+                }
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject readJsonFromFile() throws IOException, JSONException {
+        File jsonFile = new File(getExternalFilesDir(null), "app_settings.json");
+
+        FileInputStream fis = null;
+        try {
+            // Open the file for reading
+            fis = new FileInputStream(jsonFile);
+
+            // Read the contents of the file into a string
+            StringBuilder stringBuilder = new StringBuilder();
+            int content;
+            while ((content = fis.read()) != -1) {
+                stringBuilder.append((char) content);
+            }
+
+            // Convert the string to a JSON object
+            return new JSONObject(stringBuilder.toString());
+        } finally {
+            if (fis != null) {
+                fis.close();
+            }
+        }
+    }
+
+    private void saveSettings() {
+        try {
+            // Create AppSettings object
+            AppSettings appSettings = new AppSettings(Useremail, Userusername, clientRegistered, speak, lanEn);
+            // Convert AppSettings to JSON
+            JSONObject json = appSettings.toJson();
+            // Write JSON to file
+            writeJsonToFile(json);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeJsonToFile(JSONObject json) throws IOException {
+        File externalStorageDir = getExternalFilesDir(null);
+
+        if (externalStorageDir != null) {
+            File file = new File(externalStorageDir, SETTINGS_FILE);
+
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(json.toString().getBytes());
+                Log.d(TAG, "Settings saved to external storage");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void startPeriodicTask() {
+        handlerSortCSV.postDelayed(sortCSVRunnable, TimeUnit.MINUTES.toMillis(1)); // Initial delay, run every 1 minute for testing
+    }
+
+    private void showSettingsMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        inflater.inflate(R.menu.main_menu, popupMenu.getMenu());
+
+        MenuItem switchItem = popupMenu.getMenu().findItem(R.id.switch_item);
+
+
+        MenuItem languageItem = popupMenu.getMenu().findItem(R.id.menu_language);
+        if (lanEn) {
+            languageItem.setTitle(en[1]);
+            popupMenu.getMenu().findItem(R.id.add_image).setTitle(en[0]);
+            popupMenu.getMenu().findItem(R.id.delete_image).setTitle(en[2]);
+            popupMenu.getMenu().findItem(R.id.sort_image).setTitle(en[3]);
+            popupMenu.getMenu().findItem(R.id.add_bundle).setTitle(en[10]);
+            popupMenu.getMenu().findItem(R.id.export_bundle).setTitle(en[11]);
+
+            if (speak) {
+                popupMenu.getMenu().findItem(R.id.switch_item).setTitle(en[4]);
+            } else {
+                popupMenu.getMenu().findItem(R.id.switch_item).setTitle(en[5]);
+            }
+            StringCancel = en[6];
+            StringMaxImages = en[9];
+            StringEmptyLabel = en[7];
+
+
+        } else {
+            languageItem.setTitle(cz[1]);
+            popupMenu.getMenu().findItem(R.id.add_image).setTitle(cz[0]);
+            popupMenu.getMenu().findItem(R.id.delete_image).setTitle(cz[2]);
+            popupMenu.getMenu().findItem(R.id.sort_image).setTitle(cz[3]);
+            popupMenu.getMenu().findItem(R.id.add_bundle).setTitle(cz[10]);
+            popupMenu.getMenu().findItem(R.id.export_bundle).setTitle(cz[11]);
+
+            if (speak) {
+                popupMenu.getMenu().findItem(R.id.switch_item).setTitle(cz[4]);
+            } else {
+                popupMenu.getMenu().findItem(R.id.switch_item).setTitle(cz[5]);
+            }
+            StringCancel = cz[6];
+            StringMaxImages = cz[9];
+            StringEmptyLabel = cz[7];
+
+
+        }
+
+        Toast.makeText(MainActivity.this, "Menu Opened", Toast.LENGTH_SHORT).show();
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.add_image) {
+                    // Handle "Add Image" action here
+                    selectImageFromGallery();
+                    Toast.makeText(MainActivity.this, "Add Image", Toast.LENGTH_SHORT).show();
+                    return true;
+                } else if (itemId == R.id.menu_language) {
+                    lanEn = !lanEn;
+
+                    if (lanEn) {
+                        item.setTitle(en[1]);
+                        popupMenu.getMenu().findItem(R.id.delete_image).setTitle(en[2]);
+                        popupMenu.getMenu().findItem(R.id.sort_image).setTitle(en[3]);
+                        StringCancel = en[6];
+                        if (speak) {
+                            popupMenu.getMenu().findItem(R.id.switch_item).setTitle(en[4]);
+                        } else {
+                            popupMenu.getMenu().findItem(R.id.switch_item).setTitle(en[5]);
+                        }
+
+                    } else {
+                        item.setTitle(cz[1]);
+                        popupMenu.getMenu().findItem(R.id.delete_image).setTitle(cz[2]);
+                        popupMenu.getMenu().findItem(R.id.sort_image).setTitle(cz[3]);
+                        StringCancel = cz[6];
+                        if (speak) {
+                            popupMenu.getMenu().findItem(R.id.switch_item).setTitle(cz[4]);
+                        } else {
+                            popupMenu.getMenu().findItem(R.id.switch_item).setTitle(cz[5]);
+                        }
+                    }
+                    return true;
+                } else if (itemId == R.id.delete_image) {
+                    // Handle "Delete" action here
+                    Toast.makeText(MainActivity.this, "Delete Image function will be added future updates", Toast.LENGTH_SHORT).show();
+                    //displayImages = !displayImages;
+                    //deleteMode = !deleteMode;
+                    return true;
+                } else if (itemId == R.id.add_bundle) {
+
+                    Toast.makeText(MainActivity.this, "Add Bundel", Toast.LENGTH_SHORT).show();
+                    addBundleTrans();
+
+
+                } else if (itemId == R.id.export_bundle) {
+
+                    exportBundle();
+
+                } else if (itemId == R.id.sort_image) {
+                    // Handle "Sort" action here
+                    sortCSVByCount();
+                    sortImagesByCount();
+
+                    //sendData();
+
+                    Toast.makeText(MainActivity.this, "Images Sorted", Toast.LENGTH_SHORT).show();
+                    return true;
+                } else if (itemId == R.id.switch_item) {
+                    // Toggle the speak boolean
+                    speak = !speak;
+
+                    if (lanEn) {
+                        // Update the title based on the new state
+                        if (speak) {
+                            switchItem.setTitle(en[4]);
+                            Toast.makeText(MainActivity.this, en[4], Toast.LENGTH_SHORT).show();
+                        } else {
+                            switchItem.setTitle(en[5]);
+                            Toast.makeText(MainActivity.this, en[5], Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        if (speak) {
+                            switchItem.setTitle(cz[4]);
+                            Toast.makeText(MainActivity.this, cz[4], Toast.LENGTH_SHORT).show();
+                        } else {
+                            switchItem.setTitle(cz[5]);
+                            Toast.makeText(MainActivity.this, cz[5], Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    return true;
+
+                } else {
+                    return false;
+                }
+                return false;
+            }
+        });
+        popupMenu.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        this.menu = menu; // Save a reference to the menu
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        // Handle other menu item clicks
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void loadLabelsFromCSV() {
+        imageLables.clear(); // Clear the imageLables array before loading new labels
+        File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+            String line;
+            // Skip the header line.
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(",");
+                if (tokens.length >= 4) {
+                    String label = tokens[1].trim();
+                    // Add label to the imageLables array
+                    imageLables.add(label);
+                    System.out.println("Labels: " + label);
+                }
+            }
+            Log.i("Main Activity", "Labels loaded successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("Main Activity", "Error on loading labels");
+        }
+    }
+
+    private void selectImageFromGallery() {
+        try {
+            ImagePicker.with(MainActivity.this)
+                    .cropSquare()
+                    .compress(1024)
+                    .maxResultSize(500, 500)
+                    .saveDir(getExternalFilesDir(null) + "/images")
+                    .start()
+            ;
+        } catch (Exception e) {
+            Log.e("Main Activity", "Error on opening Gallery and ImagePicker");
+        }
+    }
+    public static int getRowCount(String filePath) throws IOException {
+        int rowCount = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            // Read each line of the file
+            while (reader.readLine() != null) {
+                rowCount++;
+            }
+        }
+        return rowCount;
+    }
+
+    private void copyImageToRootFolder(Uri sourceUri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(sourceUri);
+
+            if (inputStream != null) {
+                // Create DCIM directory if it doesn't exist
+                File dcimDirectory = new File(getExternalFilesDir(null), "images");
+                if (!dcimDirectory.exists()) {
+                    dcimDirectory.mkdirs();
+                }
+                // Increment the image ID counter
+                //imageIdCounter++;
+                try {
+                    File csvFilepath = new File(getExternalFilesDir(null), "csvdata.csv");
+                    imageIdCounter = getRowCount(String.valueOf(csvFilepath));
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "BAD, HERE iis the problem", Toast.LENGTH_SHORT).show();
+                }
+                // Create a filename based on the image ID
+                String destinationFileName = "image_" + imageIdCounter + ".jpg";
+                destinationFile = new File(dcimDirectory, destinationFileName);
+                OutputStream outputStream = new FileOutputStream(destinationFile);
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                inputStream.close();
+
+                outputStream.close();
+
+                // Now you can update the CSV file and perform other necessary operations
+                showCustomLabelDialog(destinationFile.getAbsolutePath());
+                Log.i("Main Activity", "Copy successful");
+                sourceUri = null;
+                inputStream = null;
+                adapter.updateData(images, imageLables);
+                loadLabelsFromCSV();
+                loadImages(imageLables);
+                adapter.notifyDataSetChanged();
+
+            } else {
+                // Handle the case where inputStream is null
+                Log.e("CopyImage", "Input stream is null");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Handle the exception
+            Log.e("CopyImage", "Error occurred while copying image");
+        }
+    }
+
+    private void deleteNonStandardImages() {
+        // Create DCIM directory if it doesn't exist
+        File dcimDirectory = new File(getExternalFilesDir(null), "images");
+        if (dcimDirectory.exists() && dcimDirectory.isDirectory()) {
+            File[] files = dcimDirectory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        // Check if the file name matches the desired pattern "image_X.jpg"
+                        if (!file.getName().matches("image_\\d+\\.jpg")) {
+                            // Delete the file if the name doesn't match the pattern
+                            if (file.delete()) {
+                                Log.i("Main Activity", "Deleted non-standard image: " + file.getName());
+                            } else {
+                                Log.e("Main Activity", "Failed to delete non-standard image: " + file.getName());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void showCustomLabelDialog(String absolutePath) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter Custom Label");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String customLabel = input.getText().toString();
+                if (!TextUtils.isEmpty(customLabel)) {
+                    // Call the updateCSVAndOtherOperations method with the custom label
+                    updateCSVAndOtherOperations(absolutePath, customLabel);
+                    imageLables.add(customLabel);  // Now the array is properly initialized
+
+                    Log.i("Main Activity", "Array ImageLabel: " + imageLables);
+
+                    adapter.updateData(images, imageLables);
+                    loadLabelsFromCSV();
+                    loadImages(imageLables);
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(MainActivity.this, StringEmptyLabel, Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        });
+
+        if (lanEn) {
+            builder.setNegativeButton(en[6], new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+        } else {
+            builder.setNegativeButton(cz[6], new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+        }
+        builder.show();
+    }
+
+    private void updateCSVAndOtherOperations(String imagePath, String customLabel) {
+        try {
+            File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
+
+            // Check if the CSV file exists
+            boolean fileExists = csvFile.exists();
+
+            // Create a FileWriter with append mode
+            FileWriter writer = new FileWriter(csvFile, true);
+
+            // Create a CSVWriter with the FileWriter, disabling quote characters
+            CSVWriter csvWriter = new CSVWriter(writer, CSVWriter.DEFAULT_SEPARATOR,
+                    CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                    CSVWriter.DEFAULT_LINE_END);
+
+            // If the file doesn't exist, write the header first
+            if (!fileExists) {
+                String[] header = {"id", "label", "count", "imageName"};
+                csvWriter.writeNext(header);
+            }
+
+            // Get the current number of lines in the CSV to determine the new id
+            int currentLineCount = getCurrentLineCount(csvFile);
+
+            // Decrement the id to be one less than the current line count
+            String id = String.valueOf(currentLineCount - 1);
+            String count = String.valueOf(currentLineCount);
+            String imageName = new File(imagePath).getName();
+
+            // Add a new line with the image path, custom label, id, and count
+            String[] data = {id, customLabel, count, imageName};
+            csvWriter.writeNext(data);
+
+            // Flush and close the CSVWriter
+            csvWriter.flush();
+            csvWriter.close();
+
+            // After updating the CSV, you can trigger the readCSV and loadImages functions
+            readCSV();
+            ArrayList<String> imageLabels = new ArrayList<>();
+            //renameRemainingImages();
+            loadImages(imageLabels);
+
+            sortCSVByCount();
+            sortImagesByCount();
+
+            deleteNonStandardImages();
+
+            adapter.updateData(images, imageLables);
+            loadLabelsFromCSV();
+            loadImages(imageLables);
+            adapter.notifyDataSetChanged();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Handle the exception
+            Log.e("UpdateCSV", "Error occurred while updating CSV");
+        }
+    }
+
+    private int getCurrentLineCount(File file) throws IOException {
+        LineNumberReader reader = new LineNumberReader(new FileReader(file));
+        reader.skip(Long.MAX_VALUE);
+        int lines = reader.getLineNumber();
+        reader.close();
+        return lines;
+    }
+
+    private void createEmptyCSV() {
+
+        File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
+
+        try {
+            if (!csvFile.exists()) {
+                // Create the CSV file if it doesn't exist
+                csvFile.createNewFile();
+
+                // Initialize the CSV file with the header
+                FileWriter writer = new FileWriter(csvFile, true);
+                writer.append("id,label,count,imageName\n");
+                writer.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("Main Activity", " Filed to make and CSV");
+        }
+    }
+
+    private void updateCSV(int position) {
+        if (counts != null && position >= 0 && position < counts.length) {
+            // Increment the "count" value for the corresponding image
+            counts[position]++;
+
+            // Update the CSV file with the new counts
+            writeCSV(position);
+
+            // Update the counts array
+            updateCountsArray();
+
+            // Notify the adapter that the data has changed
+            adapter.updateData(images, imageLables);
+            loadLabelsFromCSV();
+            loadImages(imageLables);
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private void updateCountsArray() {
+        for (int i = 0; i < dataCount; i++) {
+            counts[i] = getCountFromCSV(i);
+        }
+    }
+
+    private int getCountFromCSV(int position) {
+        File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
+        int count = 0;
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+            String line;
+
+            // Skip the header line.
+            reader.readLine();
+
+            int currentLine = 0;
+
+            while ((line = reader.readLine()) != null) {
+                if (currentLine == position) {
+                    String[] tokens = line.split(",");
+                    if (tokens.length >= 3) {
+                        count = Integer.parseInt(tokens[2].trim());
+                    }
+                    break;
+                }
+                currentLine++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+
+    private void writeCSV(int position) {
+        StringBuilder csvData = new StringBuilder("id,label,count,imageName\n");
+
+        for (int i = 0; i < ids.length; i++) {
+            csvData.append(ids[i]).append(",");
+            csvData.append(labels[i]).append(",");
+            csvData.append(counts[i]).append((","));
+            csvData.append(imageNames[i]).append("\n");
+        }
+
+        // Now, write the updated CSV data back to the file
+        try {
+            File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
+            boolean isNewFile = false;
+
+            if (!csvFile.exists()) {
+                isNewFile = true;
+                csvFile.createNewFile();
+            }
+
+            FileWriter writer = new FileWriter(csvFile, false);
+            writer.write(csvData.toString());
+            writer.flush();
+            writer.close();
+
+            if (isNewFile) {
+                // Set appropriate permissions for the new file
+                csvFile.setReadable(true);
+                csvFile.setWritable(true);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readCSV() {
+        ids = new int[0];
+        labels = new String[0];
+        counts = new int[0];
+        imageNames = new String[0];
+        dataCount = 0;
+
+        createEmptyCSV();
+
+        File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
+        if (csvFile.exists()) {
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+                String line;
+
+                // Skip the header line.
+                reader.readLine();
+
+                List<Integer> idList = new ArrayList<>();
+                List<String> labelList = new ArrayList<>();
+                List<Integer> countList = new ArrayList<>();
+                List<String> imageNameList = new ArrayList<>();
+
+                while ((line = reader.readLine()) != null) {
+                    String[] tokens = line.split(",");
+                    if (tokens.length >= 3) {
+                        int id = Integer.parseInt(tokens[0].trim());
+                        String label = tokens[1].trim();
+                        int count = Integer.parseInt(tokens[2].trim());
+                        String imageName = tokens[3].trim();
+
+                        idList.add(id);
+                        labelList.add(label);
+                        countList.add(count);
+                        imageNameList.add(imageName);
+                    }
+                }
+
+                // Convert ArrayLists to arrays
+                ids = idList.stream().mapToInt(Integer::intValue).toArray();
+                labels = labelList.toArray(new String[0]);
+                counts = countList.stream().mapToInt(Integer::intValue).toArray();
+                imageNames = imageNameList.toArray(new String[0]);
+                dataCount = ids.length;
+
+                Log.i("Main Activity", "CSV read successful");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void loadImages(ArrayList<String> imageLabels) {
+        images.clear();
+        File imagesDirectory = new File(getExternalFilesDir(null), "/images");
+
+        if (imagesDirectory.exists() && imagesDirectory.isDirectory()) {
+            // The directory exists, so we can proceed to load images.
+
+            // Create a list to store ImageInfo objects
+
+            List<ImageInfo> imageInfoList = new ArrayList<>();
+
+            for (int i = 0; i < dataCount; i++) {
+                ImageInfo imageInfo = new ImageInfo(ids[i], labels[i], counts[i], imageNames[i]);
+                imageInfoList.add(imageInfo);
+            }
+
+
+            // Update arrays based on the sorted list
+            for (int i = 0; i < imageInfoList.size(); i++) {
+                ImageInfo imageInfo = imageInfoList.get(i);
+                ids[i] = imageInfo.getId();
+                labels[i] = imageInfo.getLabel();
+                counts[i] = imageInfo.getCount();
+                imageNames[i] = imageInfo.getImageName();
+
+                // Add the sorted image paths to the 'images' list
+                File sortedImageFile = new File(imagesDirectory, imageInfo.getImageName());
+                images.add(sortedImageFile.getAbsolutePath());
+
+                // Retrieve image label based on file name and add it to imageLabels
+                String imageName = sortedImageFile.getName();
+                String label = imageLabelMap.get(imageName);
+                getImageLabelFromCSV(imageName);
+                if (label != null) {
+                    imageLabels.add(label);
+                    adapter.addImageLabel(label);
+                } else {
+                    Log.d("loadImages", "Label is null for image: " + imageName);
+                }
+            }
+
+            recyclerView.getAdapter().notifyDataSetChanged();
+        }
+    }
+
+    private void sortImagesByCount() {
+
+        readCSV();
+        List<ImageInfo> imageInfoList = new ArrayList<>();
+        for (int i = 0; i < dataCount; i++) {
+            ImageInfo imageInfo = new ImageInfo(ids[i], labels[i], counts[i], imageNames[i]);
+            imageInfoList.add(imageInfo);
+        }
+
+        // Sort the list based on counts
+        Collections.sort(imageInfoList, new Comparator<ImageInfo>() {
+            @Override
+            public int compare(ImageInfo o1, ImageInfo o2) {
+                return Integer.compare(o2.getCount(), o1.getCount());
+            }
+        });
+
+        // Clear existing data
+        ids = new int[imageInfoList.size()];
+        labels = new String[imageInfoList.size()];
+        counts = new int[imageInfoList.size()];
+        imageNames = new String[imageInfoList.size()];
+
+        // Populate arrays with sorted data
+        for (int i = 0; i < imageInfoList.size(); i++) {
+            ImageInfo imageInfo = imageInfoList.get(i);
+            ids[i] = imageInfo.getId();
+            labels[i] = imageInfo.getLabel();
+            counts[i] = imageInfo.getCount();
+            imageNames[i] = imageInfo.getImageName();
+        }
+
+        Log.i("Main Activity", "Images sorted");
+
+        // Clear the selected images container
+        selectedImagesContainer.removeAllViews();
+        selectedImages.clear();
+
+        // Introduce a delay before reloading images
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Load images on the main thread
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadImages(new ArrayList<>());
+                    }
+                });
+            }
+        }, 500); // Adjust the delay duration as needed
+    }
+
+    private void sortCSVByCount() {
+        readCSV();
+
+        // Create a list of ImageInfo objects to store image information
+        List<ImageInfo> imageInfoList = new ArrayList<>();
+
+        // Populate the list with image information
+        for (int i = 0; i < dataCount; i++) {
+            ImageInfo imageInfo = new ImageInfo(ids[i], labels[i], counts[i], imageNames[i]);
+            imageInfoList.add(imageInfo);
+        }
+
+        // Sort the list based on 'count' value
+        Collections.sort(imageInfoList, new Comparator<ImageInfo>() {
+            @Override
+            public int compare(ImageInfo o1, ImageInfo o2) {
+                // Compare based on 'count' in descending order
+                return Integer.compare(o2.getCount(), o1.getCount());
+            }
+        });
+
+        // Clear existing data
+        ids = new int[imageInfoList.size()];
+        labels = new String[imageInfoList.size()];
+        counts = new int[imageInfoList.size()];
+        imageNames = new String[imageInfoList.size()];
+
+        // Populate arrays with sorted data
+        for (int i = 0; i < imageInfoList.size(); i++) {
+            ImageInfo imageInfo = imageInfoList.get(i);
+            ids[i] = imageInfo.getId();
+            labels[i] = imageInfo.getLabel();
+            counts[i] = (imageInfoList.size() - i);
+            imageNames[i] = imageInfo.getImageName();
+            ;
+        }
+
+        // Write the sorted data back to the CSV file
+        writeCSVToFile();
+
+        // Reload labels in the correct order
+        loadLabelsFromCSV();
+
+        // Notify the adapter that the data has changed
+        adapter.updateData(images, imageLables);
+        loadLabelsFromCSV();
+        loadImages(imageLables);
+        adapter.notifyDataSetChanged();
+
+        Log.i("Main Activity", "CSV sorted");
+    }
+
+    private void writeCSVToFile() {
+        try {
+            File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
+
+            // Create a FileWriter with append mode
+            FileWriter writer = new FileWriter(csvFile, false);
+
+            // Write the header
+            writer.append("id,label,count,imageName\n");
+
+            // Write the data
+            for (int i = 0; i < ids.length; i++) {
+                String[] data = {String.valueOf(ids[i]), labels[i], String.valueOf(counts[i]), imageNames[i]};
+                CSVUtils.writeLine(writer, data);
+            }
+
+            // Flush and close the FileWriter
+            writer.flush();
+            writer.close();
+
+            Log.i("Main Activity", "CSV file written successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("Main Activity", "Error occurred while writing CSV file");
+        }
+    }
+
+    private String getImageLabelFromCSV(String imageName) {
+        File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+            String line;
+
+            // Skip the header line.
+            reader.readLine();
+
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(",");
+                if (tokens.length >= 4) {
+                    String csvImageName = tokens[3].trim();
+                    String label = tokens[1].trim();
+
+                    // Check if the image names match
+                    if (csvImageName.equals(imageName)) {
+                        return label;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null; // Return null if label not found
+    }
+
+    private void checkPermissionsRead() {
+        ArrayList<String> imageLabels = new ArrayList<>(); // Declare the imageLabels ArrayList
+        int resultR = ContextCompat.checkSelfPermission(getApplicationContext(), READ_EXTERNAL_STORAGE);
+        int resultW = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
+
+        if (resultR == PackageManager.PERMISSION_GRANTED && resultW == PackageManager.PERMISSION_GRANTED) {
+            readCSV();
+
+            loadImages(imageLabels);
+            Log.d("My Activity", "IMAGES LOADED!!!!!!");
+            System.out.println("CHECK_PERMISSIONS and pls be goood");
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    READ_EXTERNAL_STORAGE,
+                    READ_MEDIA_IMAGES,
+                    WRITE_EXTERNAL_STORAGE
+
+            }, PERMISSION_REQUEST_CODE);
+            Log.d("My Activity", "REQUESTED");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        ArrayList<String> imageLabels = new ArrayList<>(); // Declare the imageLabels ArrayList
+
+        if (grantResults.length > 0) {
+            boolean accepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            if (accepted) {
+                readCSV();
+
+                loadImages(imageLabels);
+
+                System.out.println("ACCEPTED ALL, GOOD");
+            } else {
+                Toast.makeText(this, en[8], Toast.LENGTH_LONG).show();
+            }
+        } else {
+        }
+    }
+
+    private void entsureImagesFolderExists() {
+        File dcimDirectory = new File(getFilesDir(), "images");
+        if (!dcimDirectory.exists()) {
+            dcimDirectory.mkdirs();
+        }
+    }
+
+    @Override
+    public void onItemClick(int position) {
+
+        //Toast.makeText(this, "Display Images: " + displayImages + ", " +  ColumnsNumber, Toast.LENGTH_SHORT).show();
+        if (images != null && position >= 0 && position < images.size() && displayImages == true && selectedImages.size() <= ColumnsNumber - 1) {
+            String imagePath = images.get(position);
+
+            // Calculate the maximum number of images that can fit based on the layout width
+            if (isTablet()) {
+                desiredImageWidthDP = 200;
+            }else {
+                desiredImageWidthDP = 120;
+            }
+
+
+            // Convert dp to pixels
+            float density = getResources().getDisplayMetrics().density;
+            int imageWidth = (int) (desiredImageWidthDP * density);
+
+            int containerWidth = selectedImagesContainer.getWidth();
+            int maxImages = (containerWidth / imageWidth);
+
+            if(selectedImages.size() > maxImages){
+                displayImages = false;
+            }else {
+                displayImages = true;
+            }
+
+
+            if (displayImages) {
+                if (!selectedImages.contains(imagePath)) {
+                    selectedImages.add(imagePath);
+
+                    // Update 'count' value and sort images
+                    updateCSV(position);
+                    //updateCountAndSortImages(position);
+
+                    //Toast.makeText(this, "Dimens image_size: " , Toast.LENGTH_SHORT).show();
+
+                    ImageView selectedImageView = new ImageView(this);
+
+                    if (isTablet()) {
+                        dpWidth = 200;
+                        dpHeight = 200;
+                    }else {
+                        dpWidth = 120;
+                        dpHeight = 120;
+                    }
+
+
+                    int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpWidth, getResources().getDisplayMetrics());
+                    int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpHeight, getResources().getDisplayMetrics());
+
+                    Glide.with(this)
+                            .load(imagePath)
+                            .centerCrop()
+                            .override(width, height) // Set the size of the image view
+                            .into(selectedImageView);
+
+                    // Create a FrameLayout to control the spacing
+                    FrameLayout frameLayout = new FrameLayout(this);
+                    FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                    layoutParams.setMargins(15, 0, 15, 0); // Add left and right margins here
+                    selectedImageView.setLayoutParams(layoutParams);
+                    frameLayout.addView(selectedImageView, layoutParams);
+                    selectedImagesContainer.addView(frameLayout);
+
+
+                    tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                        @Override
+                        public void onInit(int status) {
+                            if (speak) {
+                                if (status == TextToSpeech.SUCCESS) {
+                                    tts.setLanguage(new Locale("cs_CZ"));
+                                    tts.setSpeechRate(1.0f);
+                                    if (position >= 0 && position < labels.length) {
+                                        tts.speak(labels[position], TextToSpeech.QUEUE_FLUSH, null);
+                                    } else {
+                                        // Handle the case where position is out of bounds
+                                        Log.e("TextToSpeech", "Invalid position: " + position);
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    Log.d("Main Activity", "Image " + position + " displayed");
+                }
+            } else {
+                Toast.makeText(this, StringMaxImages + maxImages, Toast.LENGTH_SHORT).show();
+
+            }
+
+        }
+        if(deleteMode) {
+            //deleteImage(position);
+            Toast.makeText(this, "Delete Mode activated", Toast.LENGTH_SHORT).show();
+
+        }
+
+    }
+    private AlertDialog registrationDialog;
+
+    public void registerClient() {
+        showRegistrationWindow();
+    }
+
+    private void showRegistrationWindow() {
+        // Inflate the registration layout
+        View registrationView = LayoutInflater.from(this).inflate(R.layout.registration_window, null);
+
+        // Find the EditText fields
+        EditText editTextEmail = registrationView.findViewById(R.id.editTextEmail);
+        EditText editTextUsername = registrationView.findViewById(R.id.editTextUsername);
+
+        // Add any necessary listeners to registration elements
+        Button submitButton = registrationView.findViewById(R.id.submitButton);
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Retrieve user inputs
+                Useremail = editTextEmail.getText().toString();
+                Userusername = editTextUsername.getText().toString();
+
+                // Validate and handle the user inputs
+                if (isValidInput(Useremail, Userusername)) {
+
+                    // Dismiss the registration window
+                    registrationDialog.dismiss();
+                    clientRegistered = true;
+                    saveSettings(); // Save updated settings
+
+
+                } else {
+                    // Display an error message or handle invalid input
+                    Toast.makeText(MainActivity.this, "Registration failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // Show the registration dialog/window
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(registrationView);
+        builder.setCancelable(false); // Prevent dismissing by clicking outside
+        registrationDialog = builder.create();
+        registrationDialog.show();
+    }
+
+    private boolean isValidInput(String email, String username) {
+        // Implement your validation logic here
+        boolean isEmailValid = !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        // Check if username is not empty
+        boolean isUsernameValid = !TextUtils.isEmpty(username);
+        // Return true if input is valid, false otherwise
+        return isEmailValid && isUsernameValid;
+    }
+
+    private void addBundleTrans() {
+        // Create an intent to open the document tree
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*"); // Set MIME type to allow selecting any type of file
+
+        // Start the activity for result
+        startActivityForResult(intent, REQUEST_CODE_SELECT_FILE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            System.out.println("Selected URI: " + uri);
+
+            if (uri != null) {
+                // Check if the URI points to a ZIP file
+                if (isZipFile(uri)) {
+                    // Handle ZIP file
+                    copyZipFileToAppsFolder(uri);
+
+                    sortImagesByCount();
+                    sortImagesByCount();
+                    adapter.updateData(images, imageLables);
+                    loadLabelsFromCSV();
+                    loadImages(imageLables);
+                    adapter.notifyDataSetChanged();
+
+                } else {
+                    // Handle normal image file
+                    copyImageToRootFolder(uri);
+                }
+            } else {
+                System.out.println("URI is empty");
+            }
+        }
+    }
+    private boolean isZipFile(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        String mimeType = contentResolver.getType(uri);
+        return mimeType != null && mimeType.equals("application/zip");
+    }
+
+    private void copyZipFileToAppsFolder(Uri uri) {
+        try {
+            // Show loading dialog
+
+
+            // Get input stream for the ZIP file
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+
+            // Extract the file name from the URI
+            String fileName = getFileNameFromUri(uri);
+            Toast.makeText(this, "This is Name Of an .zip: " + fileName, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "This is Name Of an .zip: " + fileName);
+
+            // Create a file for the ZIP file in the app's private storage
+            File appPrivateDir = getExternalFilesDir(null);
+            File zipFile = new File(appPrivateDir, fileName);
+
+            // Copy the ZIP file to the app's private storage
+            OutputStream outputStream = new FileOutputStream(zipFile);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            inputStream.close();
+            outputStream.close();
+
+            Log.d("YourActivity", "Bundle.zip file copied to app's private storage");
+
+            // Now the bundle.zip file is copied to the app's private storage
+            // You can proceed with extracting its contents
+
+            // Implement the logic to extract the contents of bundle.zip
+            Toast.makeText(this, "Copy ZIP success", Toast.LENGTH_SHORT).show();
+            loadBundleFromZip(uri);
+            copyImagesFromBundleZip(uri);
+            sortImagesByCount();
+            adapter.updateData(images, imageLables);
+            loadLabelsFromCSV();
+            loadImages(imageLables);
+            adapter.notifyDataSetChanged();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("YourActivity", "Error copying bundle.zip file: " + e.getMessage());
+            Toast.makeText(this, "Copy ZIP failed", Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    // Helper method to extract the file name from the URI
+    private String getFileNameFromUri(Uri uri) {
+        String fileName = null;
+        Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (nameIndex != -1) {
+                    fileName = cursor.getString(nameIndex);
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        if (fileName == null) {
+            fileName = "bundle.zip"; // Default name if unable to retrieve from URI
+            Toast.makeText(this, "The filename is NULL", Toast.LENGTH_SHORT).show();
+        }
+        return fileName;
+    }
+
+    private void loadBundleFromZip(Uri zipUri) {
+        try {
+            // Open the zip file for reading
+            ZipInputStream zipInputStream = new ZipInputStream(getContentResolver().openInputStream(zipUri));
+            ZipEntry entry;
+
+            // Look for the bundle.csv file within the zip archive
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+
+
+                if (entry.getName().equals("Bundle/bundle.csv")) {
+                    // If bundle.csv is found, load its contents into arrays
+                    List<Integer> bundleIdList = new ArrayList<>();
+                    List<String> bundleLabelList = new ArrayList<>();
+                    List<Integer> bundleCountList = new ArrayList<>();
+                    List<String> bundleImageNameList = new ArrayList<>();
+
+                    // Read the CSV file line by line
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(zipInputStream));
+                    String line;
+                    boolean headerSkipped = false;
+                    while ((line = reader.readLine()) != null) {
+                        if (!headerSkipped) {
+                            // Skip the header line
+                            headerSkipped = true;
+                            continue;
+                        }
+                        String[] parts = line.split(",");
+                        if (parts.length >= 4) {
+                            int id = Integer.parseInt(parts[0].trim());
+                            String label = parts[1].trim();
+                            int count = Integer.parseInt(parts[2].trim());
+                            String imageName = parts[3].trim();
+
+                            // Add data to lists
+                            bundleIdList.add(id);
+                            bundleLabelList.add(label);
+                            bundleCountList.add(count);
+                            bundleImageNameList.add(imageName);
+                        }
+                    }
+                    reader.close();
+
+                    // Append bundle data to existing arrays or create new arrays if needed
+                    appendBundleDataToExistingArrays(bundleIdList, bundleLabelList, bundleCountList, bundleImageNameList);
+
+                    // Write the combined data back to csvdata.csv
+                    writeCSVToFile();
+
+                    // Close the zip input stream and break the loop
+                    zipInputStream.closeEntry();
+                    break;
+                }
+            }
+            zipInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("YourActivity", "Error loading bundle.csv from zip: " + e.getMessage());
+            Toast.makeText(this, "Error loading bundle.csv from zip", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void appendBundleDataToExistingArrays(List<Integer> bundleIds, List<String> bundleLabels, List<Integer> bundleCounts, List<String> bundleImageNames) {
+        // Find the maximum existing id value
+        int maxId = 0;
+        for (int id : ids) {
+            maxId = Math.max(maxId, id);
+        }
+
+        // Increment id values from bundle.csv to continue from the maximum existing id value
+        int nextId = maxId + 1;
+        int bundleSize = bundleIds.size();
+
+        // Create new arrays with combined sizes
+        int[] newIds = new int[ids.length + bundleSize];
+        String[] newLabels = new String[labels.length + bundleSize];
+        int[] newCounts = new int[counts.length + bundleSize];
+        String[] newImageNames = new String[imageNames.length + bundleSize];
+
+        // Copy existing data to new arrays
+        System.arraycopy(ids, 0, newIds, 0, ids.length);
+        System.arraycopy(labels, 0, newLabels, 0, labels.length);
+        System.arraycopy(counts, 0, newCounts, 0, counts.length);
+        System.arraycopy(imageNames, 0, newImageNames, 0, imageNames.length);
+
+        // Append bundle data to new arrays
+        for (int i = 0; i < bundleSize; i++) {
+            newIds[ids.length + i] = bundleIds.get(i) + maxId; // Use the maximum existing id value
+            newLabels[labels.length + i] = bundleLabels.get(i);
+            newCounts[counts.length + i] = bundleCounts.get(i);
+            newImageNames[ids.length + i] = bundleImageNames.get(i); // Ensure image names are aligned with IDs
+        }
+
+        // Update existing arrays with new data
+        ids = newIds;
+        labels = newLabels;
+        counts = newCounts;
+        imageNames = newImageNames;
+    }
+
+    private void copyImagesFromBundleZip(Uri zipUri) {
+        ZipInputStream zipInputStream = null;
+        OutputStream outputStream = null;
+        try {
+            // Open the zip file for reading
+            zipInputStream = new ZipInputStream(getContentResolver().openInputStream(zipUri));
+            ZipEntry entry;
+
+            // Define the destination directory for images
+            File destinationDirectory = new File(getExternalFilesDir(null), "images");
+            if (!destinationDirectory.exists()) {
+                destinationDirectory.mkdirs(); // Create the directory if it doesn't exist
+            }
+
+            // Look for image files within the "Bundle" directory in the zip archive
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                if (!entry.isDirectory() && entry.getName().startsWith("Bundle") && isImageFile(entry.getName())) {
+                    // Extract the image file name
+                    String imageName = entry.getName().substring(entry.getName().lastIndexOf("/") + 1);
+
+                    // Create the destination file
+                    File destinationFile = new File(destinationDirectory, imageName);
+
+                    // Copy the image file from zip to destination directory
+                    outputStream = new FileOutputStream(destinationFile);
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = zipInputStream.read(buffer)) > 0) {
+                        outputStream.write(buffer, 0, length);
+                    }
+                    outputStream.close();
+                    zipInputStream.closeEntry();
+                }
+            }
+            // Log success message
+            Log.d(TAG, "Images copied successfully to: " + destinationDirectory.getAbsolutePath());
+            Toast.makeText(this, "Images copied successfully", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Error copying images from bundle.zip: " + e.getMessage());
+            Toast.makeText(this, "Error copying images from bundle.zip", Toast.LENGTH_SHORT).show();
+
+
+
+
+        } finally {
+            // Close streams if opened
+            try {
+                if (zipInputStream != null) {
+                    zipInputStream.close();
+                }
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private boolean isImageFile(String fileName) {
+        String[] imageExtensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp"};
+        for (String extension : imageExtensions) {
+            if (fileName.toLowerCase().endsWith(extension)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public void exportBundle() {
+        try {
+            // Get the external files directory where the app can write files
+            File externalFilesDir = getExternalFilesDir(null);
+            if (externalFilesDir == null) {
+                throw new IOException("External storage not available");
+            }
+
+            // Get the current date in the desired format
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String currentDate = dateFormat.format(new Date());
+
+            // Create a zip output stream
+            FileOutputStream fos = new FileOutputStream(new File(externalFilesDir, "Bundle_" + Userusername + "_" + currentDate + ".zip"));
+            ZipOutputStream zos = new ZipOutputStream(fos);
+
+            // Create a copy of the CSV file with the desired name
+            File csvFile = new File(externalFilesDir, "csvdata.csv");
+            File bundleCsvFile = new File(externalFilesDir, "bundle.csv");
+            copyFile(csvFile, bundleCsvFile);
+
+            // Adjust IDs in bundle.csv to start from 0
+            adjustIdsInBundleCsv(bundleCsvFile);
+
+            // Add bundle.csv to the Bundle folder in the zip file
+            addFileToZip(zos, bundleCsvFile, "Bundle/bundle.csv");
+
+            // Add images from the images folder to the Bundle folder in the zip file
+            File imagesFolder = new File(externalFilesDir, "images");
+            if (imagesFolder.exists() && imagesFolder.isDirectory()) {
+                File[] imageFiles = imagesFolder.listFiles();
+                if (imageFiles != null) {
+                    for (File imageFile : imageFiles) {
+                        addFileToZip(zos, imageFile, "Bundle/" + imageFile.getName());
+                    }
+                }
+            }
+
+            // Close the zip output stream
+            zos.close();
+
+            System.out.println("Bundle exported successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Error exporting bundle: " + e.getMessage());
+        }
+    }
+
+
+    private void adjustIdsInBundleCsv(File bundleCsvFile) {
+        try {
+            // Read the contents of the bundle CSV file
+            List<String> lines = Files.readAllLines(bundleCsvFile.toPath(), StandardCharsets.UTF_8);
+
+            // Modify the lines to adjust the IDs
+            for (int i = 1; i < lines.size(); i++) { // Start from 1 to skip the header
+                String[] parts = lines.get(i).split(",");
+                int id = Integer.parseInt(parts[0]);
+                parts[0] = String.valueOf(id - 1); // Adjust the ID
+                lines.set(i, String.join(",", parts));
+            }
+
+            // Write the modified lines back to the bundle CSV file
+            Files.write(bundleCsvFile.toPath(), lines, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Error adjusting IDs in bundle.csv: " + e.getMessage());
+        }
+    }
+
+
+    private void copyFile(File sourceFile, File destFile) throws IOException {
+        FileInputStream fis = new FileInputStream(sourceFile);
+        FileOutputStream fos = new FileOutputStream(destFile);
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = fis.read(buffer)) > 0) {
+            fos.write(buffer, 0, length);
+        }
+        fis.close();
+        fos.close();
+    }
+
+    private void addFileToZip(ZipOutputStream zos, File file, String entryName) throws IOException {
+        if (file.exists()) {
+            FileInputStream fis = new FileInputStream(file);
+            ZipEntry zipEntry = new ZipEntry(entryName);
+            zos.putNextEntry(zipEntry);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) > 0) {
+                zos.write(buffer, 0, length);
+            }
+            fis.close();
+        }
+    }
+
+
+
+    //IMAGE DELETE___
+
+    private void deleteImage(int position) {
+        if (position >= 0 && position < images.size()) {
+            loadLabelsFromCSV();
+            // Get the image path
+            String imagePath = images.get(position);
+
+            // Remove the corresponding line from the CSV file
+            deleteCSVLine(position);
+
+            // Delete the image file
+            File imageFile = new File(imagePath);
+            if (imageFile.exists() && imageFile.delete()) {
+                // Image file deleted successfully
+
+                // Remove the image path from the list
+                images.remove(position);
+
+                // Remove the image label from the list
+                if (position < imageLables.size()) {
+                    imageLables.remove(position);
+                }
+
+                // Update the adapter
+                adapter.updateData(images, imageLables);
+                loadLabelsFromCSV();
+                loadImages(imageLables);
+                adapter.notifyDataSetChanged();
+
+                Toast.makeText(this, "Image deleted successfully", Toast.LENGTH_SHORT).show();
+            } else {
+                // Failed to delete image file
+                Toast.makeText(this, "Failed to delete image", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    private void deleteCSVLine(int position) {
+        // Assuming csvdata.csv is stored in the app's internal storage
+        File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
+
+        if (csvFile.exists()) {
+            try {
+                // Read the lines of the CSV file
+                BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+
+                String line;
+                StringBuilder stringBuilder = new StringBuilder();
+                int lineCount = 0;
+                while ((line = reader.readLine()) != null) {
+                    if (lineCount != position) {
+                        stringBuilder.append(line).append("\n");
+                    }
+                    lineCount++;
+                }
+                reader.close();
+
+                // Write the updated lines back to the CSV file
+                BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile));
+                writer.write(stringBuilder.toString());
+                writer.close();
+                redoIDs();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private void redoIDs() {
+        File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
+
+        if (csvFile.exists()) {
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+                String line;
+                int lineCount = 0;
+                StringBuilder newCsvContent = new StringBuilder();
+
+                while ((line = reader.readLine()) != null) {
+                    String[] tokens = line.split(",");
+                    if (tokens.length > 0) {
+                        // Decrement the ID from the total line count
+                        tokens[0] = String.valueOf(lineCount);
+                        line = String.join(",", tokens);
+                    }
+                    newCsvContent.append(line).append("\n");
+                    lineCount++;
+                }
+                reader.close();
+
+                // Write the updated lines back to the CSV file
+                BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile));
+                writer.write(newCsvContent.toString());
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        sortCSVByCount(); // Call the method to sort CSV data by count when the app goes into the background
+        sortImagesByCount();
+        saveSettings();
+
+    }
+}
+

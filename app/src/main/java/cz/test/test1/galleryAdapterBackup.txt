@@ -1,0 +1,104 @@
+package cz.test.test1;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
+import java.util.ArrayList;
+
+
+
+
+public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
+
+    private Context context;
+    private ArrayList<String> imagesList;
+    private OnItemClickListener onItemClickListener;
+    private ArrayList<String> imageLabels = new ArrayList<>();
+
+    public void addImageLabel(String label) {
+        imageLabels.add(label);
+    }
+
+
+
+    public GalleryAdapter(Context context, ArrayList<String> imagesList, OnItemClickListener listener, ArrayList<String> imageLabels) {
+        this.context = context;
+        this.imagesList = imagesList;
+        this.onItemClickListener = listener;
+        this.imageLabels = imageLabels;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.gallery_item, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        if (position >= 0 && position < imagesList.size()) {
+            String imagePath = imagesList.get(position);
+            Glide.with(context)
+                    .load(imagePath)
+                    .centerCrop()
+                    .into(holder.imageButton);
+
+            // Check if there is a corresponding label for the current position
+            if (position < imageLabels.size()) {
+                String label = imageLabels.get(position);
+                holder.labelView.setText(label);
+            } else {
+                holder.labelView.setText(""); // Set an empty label if there is no corresponding label
+            }
+        } else {
+            Log.e("Main Activity", "Index out of bounds:" + position);
+        }
+    }
+    @Override
+    public int getItemCount() {
+        return imagesList.size();
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        ImageButton imageButton;
+        TextView labelView;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            imageButton = itemView.findViewById(R.id.gallery_item);
+            labelView = itemView.findViewById(R.id.labelView);
+
+            imageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION && onItemClickListener != null) {
+                        onItemClickListener.onItemClick(position); // Pass the position as an integer
+
+
+
+
+                    }
+                }
+            });
+        }
+        public void setLabel(String label) {
+
+            labelView.setText(label);
+        }
+    }
+}

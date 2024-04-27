@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:screenOrientation="landscape"
+    android:theme="@style/ComunicatorThame"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/selectedImagesContainer"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="120dp"
+        android:layout_marginTop="0dp"
+        android:background="@drawable/stroke_background"
+        android:orientation="horizontal" />
+
+    <ImageButton
+        android:id="@+id/deleteButton"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_alignEnd="@id/selectedImagesContainer"
+        android:layout_marginEnd="-120dp"
+        android:layout_marginTop="0dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/delete_button" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/gallery_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/colorGrid"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_centerHorizontal="false" />
+
+    <GridView
+        android:id="@+id/colorGrid"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+
+
+        android:layout_below="@id/selectedImagesContainer"
+        android:gravity="center"
+        android:numColumns="11" />
+
+
+    <GridView
+        android:id="@+id/numGrid"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/colorGrid"
+        android:layout_marginTop="2dp"
+        android:numColumns="1"
+
+        android:gravity="center"
+        android:layout_centerVertical="true"
+
+
+
+        />
+
+</RelativeLayout>

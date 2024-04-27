@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:key="voice_assistance_preference"
+        android:title="Voice Assistance"
+        android:summary="Enable or disable voice assistance"
+        android:defaultValue="true" />
+
+</PreferenceScreen>

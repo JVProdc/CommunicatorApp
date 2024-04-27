@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">test1</string>
+
+    <string name="add_image_title">Add Image</string>
+    <string name="language_title">Language: EN</string>
+    <string name="add_pdf_title">Add PDF</string>
+    <string name="sort_image">Sort Images</string>
+    <string name="cancel">Cancel</string>
+    <string name="empty_label">Label can not be empty</string>
+    <string name="permissions">You have denied the permissions</string>
+    <string name="max_images">Maximum number of images: </string>
+    <string name="voice_assistant">Voice Assistant</string>
+    <string name="UIscale">UI scale</string>
+    <string name="add_bundle">Add Bundle</string>
+    <string name="export_bundle">Export Bundle</string>
+    <string name="calendar">Calendar</string>
+    <string name="my_plan">My Plan</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+</resources>
