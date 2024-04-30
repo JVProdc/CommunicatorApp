@@ -7,11 +7,11 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "cz.CommunicatorApp1"
+        applicationId = "cz.CommunicatorApp"
         minSdk = 31
         targetSdk = 33
         versionCode = 1
-        versionName = "1.0.1"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

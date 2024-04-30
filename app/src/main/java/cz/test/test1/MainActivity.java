@@ -208,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
     public String pathToLastAddedImage;
 
-
     @SuppressLint({"MissingInflatedId", "WrongViewCast"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -352,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
         }
 
-        //Toast.makeText(MainActivity.this, "Menu Opened", Toast.LENGTH_SHORT).show();
+
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -360,11 +359,9 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                 if (itemId == R.id.add_image) {
                     // Handle "Add Image" action here
                     selectImageFromGallery();
-                    //Toast.makeText(MainActivity.this, "Add Image", Toast.LENGTH_SHORT).show();
                     return true;
                 } else if (itemId == R.id.menu_language) {
                     lanEn = !lanEn;
-                    //Toast.makeText(MainActivity.this, "lanEn value: " + lanEn, Toast.LENGTH_SHORT).show();
                     saveSettings();
 
                     if (lanEn) {
@@ -393,15 +390,12 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                     }
                     return true;
                 } else if (itemId == R.id.add_pdf) {
-                    // Handle "Delete" action here
-                    //Toast.makeText(MainActivity.this, "Select PDF file", Toast.LENGTH_SHORT).show();
 
                     pickPdfFile();
 
                     return true;
                 } else if (itemId == R.id.add_bundle) {
 
-                    //Toast.makeText(MainActivity.this, "Add Bundel", Toast.LENGTH_SHORT).show();
                     addBundleTrans();
 
 
@@ -414,7 +408,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                     sortCSVByCount();
                     sortImagesByCount();
 
-                    //sendData();
 
                     Toast.makeText(MainActivity.this, "Images Sorted", Toast.LENGTH_SHORT).show();
                     return true;
@@ -430,7 +423,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                     // Toggle the speak boolean
                     speak = !speak;
                     saveSettings();
-                    //setDayButtonsText();
 
                     if (lanEn) {
                         // Update the title based on the new state
@@ -523,7 +515,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         recyclerView.setLayoutManager(manager);
 
 
-        //loadImagesFromPlanCSV();
 
 
         // Set the adapter for the RecyclerView
@@ -551,7 +542,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         readCSV();
         loadLabelsFromCSV();
         loadImages(imageLables);
-        //adapter.notifyDataSetChanged();
     }
     private void initializeDividedLayout() {
         RadioGroup radioGroup = findViewById(R.id.dayGroup);
@@ -687,7 +677,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             });
         }
 
-        // Other initialization code
     }
     private void switchToDividedLayout() {
         isDividedLayout = true;
@@ -826,7 +815,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
             // Update the number of images displayed
             numImagesDisplayed += numImagesInRow;
-            //adapter.notifyDataSetChanged();
         }
     }
 
@@ -1006,7 +994,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                 planCSVFile.setWritable(true);
 
                 Log.i("Main Activity", "plan.csv cleared successfully");
-                //Toast.makeText(this, "plan.csv cleared successfully", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, mondayImages.toString());
                 Log.e(TAG, tuesdayImages.toString());
                 Log.e(TAG, wednesdayImages.toString());
@@ -1077,7 +1064,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             saturday.setText(daycz[5]);
             sunday.setText(daycz[6]);
         }
-        //adapter.notifyDataSetChanged();
+
 
     }
 
@@ -1235,7 +1222,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
             // Add the selected color image to the selectedImagesContainer
             selectedImagesContainer.addView(colorImageView);
-            //adapter.notifyDataSetChanged();
 
             // Speak the label based on language settings
             if (speak) {
@@ -1403,7 +1389,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.calendar) {
-            //switchToCalendarView();
             Toast.makeText(this, "Calendar Selected", Toast.LENGTH_SHORT).show();
             return true;
         }
@@ -1476,7 +1461,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
                 // Now you can update the CSV file and perform other necessary operations
                 showCustomLabelDialog(destinationFile.getAbsolutePath());
-                //Toast.makeText(this, "destinationFile: " + destinationFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
                 Log.i("Main Activity", "Copy successful");
 
                 adapter.updateData(images, imageLables);
@@ -1566,13 +1550,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
     }
 
-
-    // Declare dialog variable as a class member
-
-    //WORKING but PDF preview
     private void showCustomLabelDialog(String absolutePath) {
 
-        //WORKING but PDF preview
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.custom_dialog_layout, null);
@@ -1581,7 +1560,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
 
 
-        //displayImagePreview(); //NOT working
         Log.e(TAG, "absolutePath: " + absolutePath);
         Log.e(TAG, "lastImageUri(): " + lastImageUri());
 
@@ -1591,9 +1569,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             File imgFile = new File(lastImageUri());
             if (imgFile.exists()) {
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                //selectedImageContainerPreview.setImageBitmap(image.getDrawingCache());
                 selectedImageContainerPreview.setImageBitmap(myBitmap);
-                //Toast.makeText(this, "Image displayed", Toast.LENGTH_SHORT).show();
             }
         } else {
             Toast.makeText(this, "URI is empty or null", Toast.LENGTH_SHORT).show();
@@ -1633,7 +1609,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                         dialog.dismiss();
                     } else {
                         // Show a toast indicating that the image cannot be added due to an invalid label
-                        removeLastAddedImage();
                         Toast.makeText(MainActivity.this, "Image cannot be added because of same or invalid label", Toast.LENGTH_SHORT).show();
                     }
                 } else {
@@ -1718,15 +1693,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         });
 
 
-  /*
-        if (absolutePath != null && !absolutePath.isEmpty()) {
-            File imgFile = new File(absolutePath);
-            if (imgFile.exists()) {
-                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                selectedImageContainerPreview.setImageBitmap(myBitmap);
-            }
-        }
-*/
+
 
 
         dialog = builder.create();
@@ -1814,7 +1781,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                 if (fileWithHighestNumber != null) {
                     boolean deleted = fileWithHighestNumber.delete();
                     if (deleted) {
-                        //Toast.makeText(this, "Last Image Deleted", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(this, "Failed to delete last image", Toast.LENGTH_SHORT).show();
                     }
@@ -1943,10 +1909,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             updateCountsArray();
 
             // Notify the adapter that the data has changed
-            //adapter.updateData(images, imageLables);
             loadLabelsFromCSV();
             loadImages(imageLables);
-            //adapter.notifyDataSetChanged();
         }
     }
     private void updateCountsArray() {
@@ -2107,13 +2071,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                     adapter.addImageLabel(label);
                 } else {
 
-                    //Log.d("loadImages", "Label is null for image: " + imageName);
                 }
             }
-
-            //recyclerView.getAdapter().notifyDataSetChanged();
-            //adapter.notifyDataSetChanged();
-
         }
     }
     private void sortImagesByCount() {
@@ -2324,9 +2283,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
     @Override
     public void onItemClick(int position) {
-        //adapter.setNewImageAdded(false);
-        //deleteImage(position, MainActivity.this);
-
 
         if (images != null && position >= 0 && position < images.size() && displayImages && selectedImages.size() + ColNumSel <= ColumnsNumber - 1) {
             String imagePath = images.get(position);
@@ -2365,11 +2321,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                             Toast.makeText(this, "Added image to: " + selectedDay, Toast.LENGTH_SHORT).show();
                             mondayImages.add(imagePath);
                             System.out.print(mondayImages);
-                            //Log.e("Main Activity", String.valueOf(mondayImages));
                             Log.e("Main Activity", selectedDay + " " + String.valueOf(mondayImages.size()));
-                            //selectedDayContainer.removeAllViews();
                             displayImagesByDay(SelectedDay);
-                            //adapter.notifyDataSetChanged();
 
 
 
@@ -2379,11 +2332,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                             Toast.makeText(this, "Added image to: " + selectedDay, Toast.LENGTH_SHORT).show();
                             tuesdayImages.add(imagePath);
                             System.out.print(tuesdayImages);
-                            //Log.e("Main Activity", String.valueOf(tuesdayImages));
                             Log.e("Main Activity", selectedDay + " " + String.valueOf(tuesdayImages.size()));
-                            //selectedDayContainer.removeAllViews();
                             displayImagesByDay(SelectedDay);
-                            //adapter.notifyDataSetChanged();
 
 
                             break;
@@ -2392,11 +2342,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                             Toast.makeText(this, "Added image to: " + selectedDay, Toast.LENGTH_SHORT).show();
                             wednesdayImages.add(imagePath);
                             System.out.print(wednesdayImages);
-                            //Log.e("Main Activity", String.valueOf(wednesdayImages));
                             Log.e("Main Activity", selectedDay + " " + String.valueOf(wednesdayImages.size()));
-                            //selectedDayContainer.removeAllViews();
                             displayImagesByDay(SelectedDay);
-                            //adapter.notifyDataSetChanged();
 
 
                             break;
@@ -2405,11 +2352,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                             Toast.makeText(this, "Added image to: " + selectedDay, Toast.LENGTH_SHORT).show();
                             thursdayImages.add(imagePath);
                             System.out.print(thursdayImages);
-                            //Log.e("Main Activity", String.valueOf(thursdayImages));
                             Log.e("Main Activity", selectedDay + " " + String.valueOf(thursdayImages.size()));
-                            //selectedDayContainer.removeAllViews();
                             displayImagesByDay(SelectedDay);
-                            //adapter.notifyDataSetChanged();
 
 
                             break;
@@ -2418,11 +2362,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                             Toast.makeText(this, "Added image to: " + selectedDay, Toast.LENGTH_SHORT).show();
                             fridayImages.add(imagePath);
                             System.out.print(fridayImages);
-                            //Log.e("Main Activity", String.valueOf(fridayImages));
                             Log.e("Main Activity", selectedDay + " " + String.valueOf(fridayImages.size()));
-                            //selectedDayContainer.removeAllViews();
                             displayImagesByDay(SelectedDay);
-                            //adapter.notifyDataSetChanged();
 
 
                             break;
@@ -2431,11 +2372,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                             Toast.makeText(this, "Added image to: " + selectedDay, Toast.LENGTH_SHORT).show();
                             saturdayImages.add(imagePath);
                             System.out.print(saturdayImages);
-                            //Log.e("Main Activity", String.valueOf(saturdayImages));
                             Log.e("Main Activity", selectedDay + " " + String.valueOf(saturdayImages.size()));
-                            //selectedDayContainer.removeAllViews();
                             displayImagesByDay(SelectedDay);
-                            //adapter.notifyDataSetChanged();
 
 
                             break;
@@ -2444,11 +2382,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                             Toast.makeText(this, "Added image to: " + selectedDay, Toast.LENGTH_SHORT).show();
                             sundayImages.add(imagePath);
                             System.out.print(sundayImages);
-                            //Log.e("Main Activity", String.valueOf(sundayImages));
                             Log.e("Main Activity", selectedDay + " " + String.valueOf(sundayImages.size()));
-                            //selectedDayContainer.removeAllViews();
                             displayImagesByDay(SelectedDay);
-                            //adapter.notifyDataSetChanged();
 
 
                             break;
@@ -2476,7 +2411,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                         // Update 'count' value and sort images
                         updateCSV(position);
 
-                        //Toast.makeText(this, selectedImages.get(0), Toast.LENGTH_SHORT).show();
 
                         ImageView selectedImageView = new ImageView(this);
 
@@ -2568,14 +2502,11 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
         @Override
         public void onItemLongClick(int position) {
-            //Toast.makeText(MainActivity.this, "HERE IS BEING CALLED LONG CLICK", Toast.LENGTH_SHORT).show();
         }
     };
 
 
     public void onItemLongClick(int position) {
-        //Toast.makeText(this, "Deleted image: " + position, Toast.LENGTH_SHORT).show();
-        //deleteImage(position,this);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Are you sure to delete the image?")
@@ -2663,11 +2594,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     }
 
 
-
-   //onActivityResult
-
-
-
     private static final int PICK_PDF_REQUEST = 123;
 
     @Override
@@ -2723,19 +2649,12 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             try {
                 // Open input stream from the cropped image
                 InputStream inputStream = getContentResolver().openInputStream(resultUri);
-
-                // Handle the cropped image as needed
-                // For example, save it to a file or display it
-
                 copyImageToRootFolder(resultUri);
-
-                //Toast.makeText(this, "Cropping should be good", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 e.printStackTrace();
-                //Toast.makeText(this, "Failed to handle cropped image", Toast.LENGTH_SHORT).show();
             }
         } else {
-            //Toast.makeText(this, "Failed to retrieve cropped image", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Uri is null");
         }
     }
 
@@ -2763,7 +2682,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
             // Extract the file name from the URI
             String fileName = getFileNameFromUri(uri);
-            //Toast.makeText(this, "This is Name Of an .zip: " + fileName, Toast.LENGTH_SHORT).show();
             Log.d(TAG, "This is Name Of an .zip: " + fileName);
 
             // Create a file for the ZIP file in the app's private storage
@@ -2786,7 +2704,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             // You can proceed with extracting its contents
 
             // Implement the logic to extract the contents of bundle.zip
-            //Toast.makeText(this, "Copy ZIP success", Toast.LENGTH_SHORT).show();
             loadBundleFromZip(uri);
             copyImagesFromBundleZip(uri);
             sortImagesByCount();
@@ -2822,7 +2739,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
         if (fileName == null) {
             fileName = "bundle.zip"; // Default name if unable to retrieve from URI
-            //Toast.makeText(this, "The filename is NULL", Toast.LENGTH_SHORT).show();
         }
         return fileName;
     }
@@ -2960,7 +2876,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
             // Log success message
             Log.d(TAG, "Images copied successfully to: " + destinationDirectory.getAbsolutePath());
-            //Toast.makeText(this, "Images copied successfully", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
             Log.e(TAG, "Error copying images from bundle.zip: " + e.getMessage());
@@ -3120,15 +3035,9 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
             // Update the CSV file with the re-assigned IDs
             updateIdsInCSV();
-
             // Clear and reload the adapter
             clearAndReloadAdapter();
-            //adapter.removeItem(position);
-            //adapter.removeItem(position);
-
             initializeMainActivity();
-            //adapter.updateData(images, imageLables);
-            //adapter.notifyDataSetChanged();
         }
     }
     @SuppressLint("StaticFieldLeak")
@@ -3159,7 +3068,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     }
     private void clearAndReloadAdapter() {
         // Clear the adapter completely
-        //adapter.clear();
 
         // Clear the images and image labels lists
         images.clear();
@@ -3304,9 +3212,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             // Close the PDF renderer
             renderer.close();
 
-            // Notify user about successful extraction
-            //Toast.makeText(this, "Images extracted from PDF", Toast.LENGTH_SHORT).show();
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -3353,10 +3258,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                         // Delete the image file
                         boolean deleted = file.delete();
                         if (deleted) {
-                            // Log a message indicating that the file was deleted successfully
                             Log.i("DeleteImageFiles", "Deleted file: " + file.getName());
                         } else {
-                            // Log a message indicating that the file could not be deleted
                             Log.e("DeleteImageFiles", "Failed to delete file: " + file.getName());
                         }
                     }
@@ -3388,5 +3291,3 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     }
 
 }
-
-//TODO  optimaliazce? dodelat přidávání většího počtu obr do plánu.
