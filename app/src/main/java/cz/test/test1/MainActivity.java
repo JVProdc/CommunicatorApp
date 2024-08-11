@@ -166,8 +166,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
 
     private File destinationFile;
-    String[] cz = {"Přidat Obrázek", "Jazyk: CZ", "Přidat PDF", "Seřadit Obrázky", "Hlas Zapnutý", "Hlas Vypnutý", "Zrušit", "Popisek nemůže být prázdný", "Zamítli jste oprávnění", "Maximální počet obrázků: ", "Přidat sestavu", "Exportovat sestavu", "Můj plán"};
-    String[] en = {"Add Image", "Language: EN", "Add PDF", "Sort Image", "Voice Assist: ON", "Voice Assist: OFF", "Cancel", "Label can not be empty", "You have dined the permission", "Maximum number of images: ", "Add Bundle", "Export Bundle", "My plan"};
+    String[] cz = {"Přidat Obrázek", "Jazyk: CZ", "Přidat PDF", "Seřadit Obrázky", "Hlas Zapnutý", "Hlas Vypnutý", "Zrušit", "Popisek nemůže být prázdný", "Zamítli jste oprávnění", "Maximální počet obrázků: ", "Přidat sestavu", "Exportovat sestavu", "Můj plán", "OK", "Další obrázek", "Další PDF"};
+    String[] en = {"Add Image", "Language: EN", "Add PDF", "Sort Image", "Voice Assist: ON", "Voice Assist: OFF", "Cancel", "Label can not be empty", "You have dined the permission", "Maximum number of images: ", "Add Bundle", "Export Bundle", "My plan", "OK", "Next Image", "Next PDF"};
 
 
 
@@ -1580,9 +1580,40 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText input = dialogView.findViewById(R.id.editText);
 
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button positiveButton = dialogView.findViewById(R.id.positiveButton);
+        if (lanEn) {
+            positiveButton.setText(en[13]);
+        } else {
+            positiveButton.setText(cz[13]);
+
+        }
+
+
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button negativeButton = dialogView.findViewById(R.id.negativeButton);
+        if (lanEn) {
+            negativeButton.setText(en[6]);
+        } else {
+            negativeButton.setText(cz[6]);
+
+        }
+
+
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button nextPdfButton = dialogView.findViewById(R.id.neutralButton1);
+        if (lanEn) {
+            nextPdfButton.setText(en[14]);
+        } else {
+            nextPdfButton.setText(cz[14]);
+
+        }
+
+
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button nextImageButton = dialogView.findViewById(R.id.neutralButton2);
+        if (lanEn) {
+            nextImageButton.setText(en[15]);
+        } else {
+            nextImageButton.setText(cz[15]);
+
+        }
+
 
 
 

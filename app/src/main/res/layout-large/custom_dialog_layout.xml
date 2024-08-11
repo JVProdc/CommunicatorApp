@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:textColor="@color/secondary"
-            android:text="OK" />
+            android:text="@string/OK"/>
 
         <Button
             android:id="@+id/negativeButton"
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:textColor="@color/secondary"
-            android:text="Cancel" />
+            android:text="@string/cancel" />
 
         <Button
             android:id="@+id/neutralButton1"
@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:textColor="@color/secondary"
-            android:text="Next PDF" />
+            android:text="@string/next_pdf" />
 
         <Button
             android:id="@+id/neutralButton2"
@@ -64,6 +64,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:textColor="@color/secondary"
-            android:text="Next Image" />
+            android:text="@string/next_image" />
     </LinearLayout>
 </LinearLayout>
