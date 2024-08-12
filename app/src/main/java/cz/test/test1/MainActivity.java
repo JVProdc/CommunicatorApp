@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
@@ -166,8 +168,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
 
     private File destinationFile;
-    String[] cz = {"Přidat Obrázek", "Jazyk: CZ", "Přidat PDF", "Seřadit Obrázky", "Hlas Zapnutý", "Hlas Vypnutý", "Zrušit", "Popisek nemůže být prázdný", "Zamítli jste oprávnění", "Maximální počet obrázků: ", "Přidat sestavu", "Exportovat sestavu", "Můj plán", "OK", "Další obrázek", "Další PDF"};
-    String[] en = {"Add Image", "Language: EN", "Add PDF", "Sort Image", "Voice Assist: ON", "Voice Assist: OFF", "Cancel", "Label can not be empty", "You have dined the permission", "Maximum number of images: ", "Add Bundle", "Export Bundle", "My plan", "OK", "Next Image", "Next PDF"};
+    String[] cz = {"Přidat Obrázek", "Jazyk: CZ", "Přidat PDF", "Seřadit Obrázky", "Hlas Zapnutý", "Hlas Vypnutý", "Zrušit", "Popisek nemůže být prázdný", "Zamítli jste oprávnění", "Maximální počet obrázků: ", "Přidat sestavu", "Exportovat sestavu", "Můj plán", "OK", "Další obrázek", "Další PDF", "Are you sure to delete the image?", "Image ", " was deleted.", "Yes", "No"};
+    String[] en = {"Add Image", "Language: EN", "Add PDF", "Sort Image", "Voice Assist: ON", "Voice Assist: OFF", "Cancel", "Label can not be empty", "You have dined the permission", "Maximum number of images: ", "Add Bundle", "Export Bundle", "My plan", "OK", "Next Image", "Next PDF", "Opravdu chcete obrázek odstranit?", "Obrázek ", " byl odstraněn", "Ano", "Ne"}; //16
 
 
 
@@ -596,7 +598,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton radioButton = findViewById(checkedId);
                 String selectedDay = radioButton.getText().toString();
-                Toast.makeText(MainActivity.this, "Today is " + getTodayDay(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "Today is " + getTodayDay(), Toast.LENGTH_SHORT).show();
 
                 // Handle the selection based on the selected day
                 if (checkedId == R.id.monday) {
@@ -2540,23 +2542,44 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     public void onItemLongClick(int position) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure to delete the image?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        deleteImage(position, MainActivity.this);
-                        Toast.makeText(MainActivity.this, "Deleted image: " + imageLables.get(position), Toast.LENGTH_SHORT).show();
+        if(lanEn){
+            builder.setMessage(en[16])
+                    .setPositiveButton(en[17], new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            deleteImage(position, MainActivity.this);
+                            Toast.makeText(MainActivity.this, en[17] + imageLables.get(position) + en[18], Toast.LENGTH_SHORT).show();
 
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog, do nothing
-                    }
-                });
-        // Create the AlertDialog object and return it
-        AlertDialog dialog = builder.create();
-        dialog.show();
+                        }
+                    })
+                    .setNegativeButton(en[18], new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog, do nothing
+                        }
+                    });
+            // Create the AlertDialog object and return it
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }else {
+            builder.setMessage(cz[16])
+                    .setPositiveButton(cz[17], new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            deleteImage(position, MainActivity.this);
+                            Toast.makeText(MainActivity.this, cz[17] + imageLables.get(position) + cz[18], Toast.LENGTH_SHORT).show();
+
+                        }
+                    })
+                    .setNegativeButton(cz[18], new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog, do nothing
+                        }
+                    });
+            // Create the AlertDialog object and return it
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
 
 
     }
@@ -2942,46 +2965,60 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     }
     public void exportBundle() {
         try {
-            // Get the external files directory where the app can write files
-            File externalFilesDir = getExternalFilesDir(null);
-            if (externalFilesDir == null) {
-                throw new IOException("External storage not available");
-            }
-
             // Get the current date in the desired format
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String currentDate = dateFormat.format(new Date());
 
-            // Create a zip output stream
-            FileOutputStream fos = new FileOutputStream(new File(externalFilesDir, "Bundle_" + Userusername + "_" + currentDate + ".zip"));
-            ZipOutputStream zos = new ZipOutputStream(fos);
+            // Prepare the filename and content values for the ZIP file
+            String zipFileName = "Bundle_" + Userusername + "_" + currentDate + ".zip";
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Downloads.DISPLAY_NAME, zipFileName);
+            contentValues.put(MediaStore.Downloads.MIME_TYPE, "application/zip");
+            contentValues.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
 
-            // Create a copy of the CSV file with the desired name
-            File csvFile = new File(externalFilesDir, "csvdata.csv");
-            File bundleCsvFile = new File(externalFilesDir, "bundle.csv");
-            copyFile(csvFile, bundleCsvFile);
+            // Insert the content into the MediaStore, getting back a URI to the file
+            Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
 
-            // Adjust IDs in bundle.csv to start from 0
-            adjustIdsInBundleCsv(bundleCsvFile);
-
-            // Add bundle.csv to the Bundle folder in the zip file
-            addFileToZip(zos, bundleCsvFile, "Bundle/bundle.csv");
-
-            // Add images from the images folder to the Bundle folder in the zip file
-            File imagesFolder = new File(externalFilesDir, "images");
-            if (imagesFolder.exists() && imagesFolder.isDirectory()) {
-                File[] imageFiles = imagesFolder.listFiles();
-                if (imageFiles != null) {
-                    for (File imageFile : imageFiles) {
-                        addFileToZip(zos, imageFile, "Bundle/" + imageFile.getName());
-                    }
-                }
+            if (uri == null) {
+                throw new IOException("Failed to create the file in the Downloads folder.");
             }
 
-            // Close the zip output stream
-            zos.close();
+            // Open an output stream to write the ZIP file
+            try (OutputStream fos = getContentResolver().openOutputStream(uri);
+                 ZipOutputStream zos = new ZipOutputStream(fos)) {
 
-            System.out.println("Bundle exported successfully.");
+                // Get the external files directory where the app's files are stored
+                File externalFilesDir = getExternalFilesDir(null);
+                if (externalFilesDir == null) {
+                    throw new IOException("External storage not available");
+                }
+
+                // Create a copy of the CSV file with the desired name
+                File csvFile = new File(externalFilesDir, "csvdata.csv");
+                File bundleCsvFile = new File(externalFilesDir, "bundle.csv");
+                copyFile(csvFile, bundleCsvFile);
+
+                // Adjust IDs in bundle.csv to start from 0
+                adjustIdsInBundleCsv(bundleCsvFile);
+
+                // Add bundle.csv to the Bundle folder in the zip file
+                addFileToZip(zos, bundleCsvFile, "Bundle/bundle.csv");
+
+                // Add images from the images folder to the Bundle folder in the zip file
+                File imagesFolder = new File(externalFilesDir, "images");
+                if (imagesFolder.exists() && imagesFolder.isDirectory()) {
+                    File[] imageFiles = imagesFolder.listFiles();
+                    if (imageFiles != null) {
+                        for (File imageFile : imageFiles) {
+                            addFileToZip(zos, imageFile, "Bundle/" + imageFile.getName());
+                        }
+                    }
+                }
+
+                // Notify success
+                System.out.println("Bundle exported successfully.");
+                Toast.makeText(this, "Done", Toast.LENGTH_SHORT).show();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Error exporting bundle: " + e.getMessage());
