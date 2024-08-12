@@ -3,6 +3,7 @@ package cz.test.test1;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_MEDIA_IMAGES;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -12,6 +13,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -59,6 +61,7 @@ import android.widget.PopupMenu;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.github.dhaval2404.imagepicker.ImagePicker;
@@ -68,6 +71,7 @@ import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -135,7 +139,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     int dpHeight = 200; // Initial height in dp
 
 
-
     public boolean displayImages = true;
 
 
@@ -170,7 +173,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     private File destinationFile;
     String[] cz = {"Přidat Obrázek", "Jazyk: CZ", "Přidat PDF", "Seřadit Obrázky", "Hlas Zapnutý", "Hlas Vypnutý", "Zrušit", "Popisek nemůže být prázdný", "Zamítli jste oprávnění", "Maximální počet obrázků: ", "Přidat sestavu", "Exportovat sestavu", "Můj plán", "OK", "Další obrázek", "Další PDF", "Are you sure to delete the image?", "Image ", " was deleted.", "Yes", "No"};
     String[] en = {"Add Image", "Language: EN", "Add PDF", "Sort Image", "Voice Assist: ON", "Voice Assist: OFF", "Cancel", "Label can not be empty", "You have dined the permission", "Maximum number of images: ", "Add Bundle", "Export Bundle", "My plan", "OK", "Next Image", "Next PDF", "Opravdu chcete obrázek odstranit?", "Obrázek ", " byl odstraněn", "Ano", "Ne"}; //16
-
 
 
     public int SelectedDay = 0;
@@ -290,18 +292,20 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             registerClient();
         }
     }
+
     private void startPeriodicTask() {
         handlerSortCSV.postDelayed(sortCSVRunnable, TimeUnit.DAYS.toMillis(1)); // Initial delay, run every 1 minute for testing
     }
+
     private boolean isTablet() {
         Configuration config = getResources().getConfiguration();
         return (config.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
+
     public int dpToPx(int dp) {
         float density = getResources().getDisplayMetrics().density;
         return Math.round(dp * density);
     }
-
 
 
     private void showSettingsMenu(View view) {
@@ -454,12 +458,12 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         });
         popupMenu.show();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
-
 
 
     private void setupRecyclerView() {
@@ -482,6 +486,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         GridLayoutManager layoutManager = new GridLayoutManager(this, numColumns);
         recyclerView.setLayoutManager(layoutManager);
     }
+
     private void initializeMainActivity() {
         // Set the content view to the main activity layout
         setContentView(R.layout.activity_main);
@@ -490,7 +495,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         selectedImagesContainer = findViewById(R.id.selectedImagesContainer);
         deleteButton = findViewById(R.id.deleteButton);
         recyclerView = findViewById(R.id.gallery_recycler);
-
 
 
         // Initialize other views and adapters
@@ -515,8 +519,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         // Set the layout manager for the RecyclerView
         manager = new GridLayoutManager(this, ColumnsNumber);
         recyclerView.setLayoutManager(manager);
-
-
 
 
         // Set the adapter for the RecyclerView
@@ -545,6 +547,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         loadLabelsFromCSV();
         loadImages(imageLables);
     }
+
     private void initializeDividedLayout() {
         RadioGroup radioGroup = findViewById(R.id.dayGroup);
         deleteButton = findViewById(R.id.deleteButton);
@@ -644,8 +647,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
         if (currentDayOfWeek == 0) {
             transDay = 6;
-        } else  {
-            transDay = currentDayOfWeek -1;
+        } else {
+            transDay = currentDayOfWeek - 1;
         }
 
 
@@ -680,6 +683,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
 
     }
+
     private void switchToDividedLayout() {
         isDividedLayout = true;
         switchLayout(isDividedLayout);
@@ -688,13 +692,13 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         displayImagesForCurrentDay();
 
     }
+
     private void switchToCurrentLayout() {
         isDividedLayout = false;
         switchLayout(isDividedLayout);
         initializeMainActivity();
         writePlanCSV();
     }
-
 
 
     private void displayImagesByDay(int selectedDay) {
@@ -779,10 +783,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         while (numImagesDisplayed < numImages) {
             // Create a new LinearLayout for each row
             LinearLayout rowLayout = new LinearLayout(this);
-            rowLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            ));
+            rowLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             rowLayout.setOrientation(LinearLayout.HORIZONTAL);
 
             // Calculate the number of images to display in this row
@@ -794,19 +795,14 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
                 // Create a new ImageView for each image
                 ImageView imageView = new ImageView(this);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                        imageWidth,
-                        imageHeight
-                );
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(imageWidth, imageHeight);
                 params.setMargins(8, 8, 8, 8); // Adjust margins as needed
 
                 imageView.setLayoutParams(params);
                 imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
                 // Load the image into the ImageView using Glide
-                Glide.with(this)
-                        .load(imagePath)
-                        .into(imageView);
+                Glide.with(this).load(imagePath).into(imageView);
 
                 // Add the ImageView to the current row
                 rowLayout.addView(imageView);
@@ -852,7 +848,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     }
 
 
-
     private void createEmptyPlanCSV() {
         File planCSVFile = new File(getExternalFilesDir(null), "plan.csv");
 
@@ -873,6 +868,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Log.e("Main Activity", "Failed to create plan.csv");
         }
     }
+
     private void writePlanCSV() {
         StringBuilder csvData = new StringBuilder();
         // Clear existing data in day arrays
@@ -911,6 +907,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Log.e("Main Activity", "Failed to write data to plan.csv");
         }
     }
+
     private void writeDayToCSV(List<String> imagePaths, String day, StringBuilder csvData) {
         // Append the day to the CSV data
         csvData.append(day).append(",");
@@ -923,6 +920,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         // Add a new line after the day's image paths
         csvData.append("\n");
     }
+
     private void loadImagesFromPlanCSV() {
 
         // Read the plan.csv file
@@ -981,6 +979,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             e.printStackTrace();
         }
     }
+
     private void clearPlanCSV() {
         try {
             File planCSVFile = new File(getExternalFilesDir(null), "plan.csv");
@@ -1013,12 +1012,14 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Log.e("Main Activity", "Failed to clear plan.csv");
         }
     }
+
     private void addPathsToDayArray(List<String> dayArray, String[] imagePaths) {
         // Add image paths to the day array
         for (String imagePath : imagePaths) {
             dayArray.add(imagePath);
         }
     }
+
     private int getRadioButtonIdForDay(int dayIndex) {
         switch (dayIndex) {
             case 1:
@@ -1039,6 +1040,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                 return -1; // Invalid day index
         }
     }
+
     private void setDayButtonsText() {
         // Set the text for each RadioButton dynamically
         RadioButton monday = findViewById(R.id.monday);
@@ -1113,6 +1115,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
         }
     }
+
     private void handleDeleteButtonLongClick() {
         // Perform long-press action here
         if (selectedImages.size() != 0) {
@@ -1135,6 +1138,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
 
     }
+
     public void backButtonAction() {
         // Check if there are any items to remove
         if (!selectedImages.isEmpty()) {
@@ -1148,6 +1152,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
         }
     }
+
     public void handleColorClick(int position) {
 
 
@@ -1164,10 +1169,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             ImageView colorImageView = new ImageView(this);
 
             // Load the image using Glide and resize it to 200x200dp
-            Glide.with(this)
-                    .load(colorResourceId)
-                    .centerCrop()
-                    .override(dpToPx(ColNumSize), dpToPx(ColNumSize))
+            Glide.with(this).load(colorResourceId).centerCrop().override(dpToPx(ColNumSize), dpToPx(ColNumSize))
                     //.diskCacheStrategy(DiskCacheStrategy.NONE)
                     //.skipMemoryCache(true)
                     .into(colorImageView);
@@ -1199,6 +1201,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
 
     }
+
     public void handleNumberClick(int position) {
         // Get the selected color image resource ID
 
@@ -1214,10 +1217,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             ImageView colorImageView = new ImageView(this);
 
             // Load the image using Glide and resize it to 200x200dp
-            Glide.with(this)
-                    .load(colorResourceId)
-                    .centerCrop()
-                    .override(dpToPx(ColNumSize), dpToPx(ColNumSize))
+            Glide.with(this).load(colorResourceId).centerCrop().override(dpToPx(ColNumSize), dpToPx(ColNumSize))
                     //.diskCacheStrategy(DiskCacheStrategy.NONE)
                     //.skipMemoryCache(true)
                     .into(colorImageView);
@@ -1279,6 +1279,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             return imageName;
         }
     }
+
     static class CSVUtils {
         private static final char DEFAULT_SEPARATOR = ',';
 
@@ -1335,6 +1336,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             e.printStackTrace();
         }
     }
+
     private JSONObject readJsonFromFile() throws IOException, JSONException {
         File jsonFile = new File(getExternalFilesDir(null), "app_settings.json");
 
@@ -1358,6 +1360,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
         }
     }
+
     private void saveSettings() {
         try {
             // Create AppSettings object
@@ -1370,6 +1373,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             e.printStackTrace();
         }
     }
+
     private void writeJsonToFile(JSONObject json) throws IOException {
         File externalStorageDir = getExternalFilesDir(null);
 
@@ -1386,7 +1390,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     }
 
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
@@ -1396,6 +1399,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void loadLabelsFromCSV() {
         imageLables.clear(); // Clear the imageLables array before loading new labels
         File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
@@ -1419,20 +1423,17 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Log.e("Main Activity", "Error on loading labels");
         }
     }
+
     private void selectImageFromGallery() {
         try {
-            ImagePicker.with(MainActivity.this)
-                    .cropSquare()
-                    .compress(128)
-                    .maxResultSize(500, 500)
-                    .saveDir(getExternalFilesDir(null) + "/images")
-                    .start();
+            ImagePicker.with(MainActivity.this).cropSquare().compress(128).maxResultSize(500, 500).saveDir(getExternalFilesDir(null) + "/images").start();
         } catch (Exception e) {
             Log.e("Main Activity", "Error on opening Gallery and ImagePicker");
         }
 
 
     }
+
     private void copyImageToRootFolder(Uri sourceUri) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(sourceUri);
@@ -1479,6 +1480,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Log.e("CopyImage", "Error occurred while copying image");
         }
     }
+
     private int findMaxNumberInFileName(File directory) {
         int maxNumber = 0;
         // Get a list of files in the directory
@@ -1496,6 +1498,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
         return maxNumber;
     }
+
     private int findMaxId() {
         int maxId = 0;
         for (int id : ids) {
@@ -1505,6 +1508,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
         return maxId;
     }
+
     private int findMaxNumberInImageName() {
         int maxNumber = 0;
         for (String imageName : imageNames) {
@@ -1516,6 +1520,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
         return maxNumber;
     }
+
     private int extractNumberFromFileName(String fileName) {
         try {
             // Extract the numeric part from the file name
@@ -1529,6 +1534,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             return -1; // Default value indicating failure
         }
     }
+
     private void deleteNonStandardImages() {
         // Create DCIM directory if it doesn't exist
         File dcimDirectory = new File(getExternalFilesDir(null), "images");
@@ -1561,10 +1567,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         ImageView selectedImageContainerPreview = dialogView.findViewById(R.id.selectedImageContainerPreview);
 
 
-
         Log.e(TAG, "absolutePath: " + absolutePath);
         Log.e(TAG, "lastImageUri(): " + lastImageUri());
-
 
 
         if (lastImageUri() != null && !lastImageUri().isEmpty()) {
@@ -1576,7 +1580,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         } else {
             Toast.makeText(this, "URI is empty or null", Toast.LENGTH_SHORT).show();
         }
-
 
 
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText input = dialogView.findViewById(R.id.editText);
@@ -1615,9 +1618,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             nextImageButton.setText(cz[15]);
 
         }
-
-
-
 
 
         positiveButton.setOnClickListener(new View.OnClickListener() {
@@ -1726,15 +1726,13 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         });
 
 
-
-
-
         dialog = builder.create();
         dialog.setCancelable(false); // Prevent dialog dismissal on outside touch
         dialog.show();
     }
+
     private String lastImageUri() {
-        
+
         pathToLastAddedImage = null;
         // Create DCIM directory if it doesn't exist
         File dcimDirectory = new File(getExternalFilesDir(null), "images");
@@ -1775,7 +1773,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
         return pathToLastAddedImage;
     }
-    
 
 
     private void removeLastAddedImage() {
@@ -1827,6 +1824,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Toast.makeText(this, "Directory does not exist", Toast.LENGTH_SHORT).show();
         }
     }
+
     private String capitalizeFirstLetter(String label) {
         if (label.length() > 0) {
             return Character.toUpperCase(label.charAt(0)) + label.substring(1);
@@ -1834,6 +1832,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             return label;
         }
     }
+
     @SuppressLint("NotifyDataSetChanged")
     private void updateCSVAndOtherOperations(String imagePath, String customLabel) {
         try {
@@ -1863,7 +1862,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             deleteNonStandardImages();
 
 
-
             // Update the adapter with the new data
             adapter.updateData(images, imageLabels);
 
@@ -1872,20 +1870,20 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             adapter.notifyDataSetChanged();
 
 
-
-
         } catch (IOException e) {
             e.printStackTrace();
             // Handle the exception
             Log.e("UpdateCSV", "Error occurred while updating CSV");
         }
     }
+
     private int extractNumberFromImageName(String imageName) {
         // Extract the numeric part from the image name
         String numericPart = imageName.replaceAll("[^0-9]", "");
         // Convert the numeric part to an integer
         return Integer.parseInt(numericPart);
     }
+
     private void clearGlideDiskCache() {
         new Thread(new Runnable() {
             @Override
@@ -1894,14 +1892,13 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
         }).start();
     }
+
     private void updateCSVWithNewImageEntry(File csvFile, int newId, String customLabel, int newCount, String imageName) throws IOException {
         // Create a FileWriter with append mode
         FileWriter writer = new FileWriter(csvFile, true);
 
         // Create a CSVWriter with the FileWriter, disabling quote characters
-        CSVWriter csvWriter = new CSVWriter(writer, CSVWriter.DEFAULT_SEPARATOR,
-                CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-                CSVWriter.DEFAULT_LINE_END);
+        CSVWriter csvWriter = new CSVWriter(writer, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
 
         // Add a new line with the image path, custom label, id, and count
         String[] data = {String.valueOf(newId), customLabel, String.valueOf(newCount), imageName};
@@ -1911,6 +1908,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         csvWriter.flush();
         csvWriter.close();
     }
+
     private void createEmptyCSV() {
 
         File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
@@ -1930,6 +1928,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Log.e("Main Activity", " Filed to make and CSV");
         }
     }
+
     private void updateCSV(int position) {
         if (counts != null && position >= 0 && position < counts.length) {
             // Increment the "count" value for the corresponding image
@@ -1946,11 +1945,13 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             loadImages(imageLables);
         }
     }
+
     private void updateCountsArray() {
         for (int i = 0; i < dataCount; i++) {
             counts[i] = getCountFromCSV(i);
         }
     }
+
     private int getCountFromCSV(int position) {
         File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
         int count = 0;
@@ -1980,6 +1981,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
         return count;
     }
+
     private void writeCSV(int position) {
         StringBuilder csvData = new StringBuilder("id,label,count,imageName\n");
 
@@ -2014,6 +2016,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             e.printStackTrace();
         }
     }
+
     private void readCSV() {
         ids = new int[0];
         labels = new String[0];
@@ -2065,6 +2068,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
         }
     }
+
     private void loadImages(ArrayList<String> imageLabels) {
         images.clear();
 
@@ -2108,6 +2112,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
         }
     }
+
     private void sortImagesByCount() {
 
         readCSV();
@@ -2160,6 +2165,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
         }, 100); // Adjust the delay duration as needed
     }
+
     private void sortCSVByCount() {
         readCSV();
 
@@ -2210,6 +2216,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
         Log.i("Main Activity", "CSV sorted");
     }
+
     private void writeCSVToFile() {
         try {
             File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
@@ -2236,6 +2243,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Log.e("Main Activity", "Error occurred while writing CSV file");
         }
     }
+
     private String getImageLabelFromCSV(String imageName) {
         File csvFile = new File(getExternalFilesDir(null), "csvdata.csv");
 
@@ -2264,6 +2272,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
         return null; // Return null if label not found
     }
+
     private void entsureImagesFolderExists() {
         File dcimDirectory = new File(getFilesDir(), "images");
         if (!dcimDirectory.exists()) {
@@ -2284,15 +2293,13 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Log.d("My Activity", "IMAGES LOADED!!!!!!");
             System.out.println("CHECK_PERMISSIONS and pls be goood");
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    READ_EXTERNAL_STORAGE,
-                    READ_MEDIA_IMAGES,
-                    WRITE_EXTERNAL_STORAGE
+            ActivityCompat.requestPermissions(this, new String[]{READ_EXTERNAL_STORAGE, READ_MEDIA_IMAGES, WRITE_EXTERNAL_STORAGE
 
             }, PERMISSION_REQUEST_CODE);
             Log.d("My Activity", "REQUESTED");
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -2356,7 +2363,6 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                             System.out.print(mondayImages);
                             Log.e("Main Activity", selectedDay + " " + String.valueOf(mondayImages.size()));
                             displayImagesByDay(SelectedDay);
-
 
 
                             break;
@@ -2459,10 +2465,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                         int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpWidth, getResources().getDisplayMetrics());
                         int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpHeight, getResources().getDisplayMetrics());
 
-                        Glide.with(this)
-                                .load(imagePath)
-                                .centerCrop()
-                                .override(width, height) // Set the size of the image view
+                        Glide.with(this).load(imagePath).centerCrop().override(width, height) // Set the size of the image view
                                 .into(selectedImageView);
 
                         // Create a FrameLayout to control the spacing
@@ -2521,6 +2524,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
 
     }
+
     private GalleryAdapter.OnItemLongClickListener itemLongClickListener = new GalleryAdapter.OnItemLongClickListener() {
         @Override
         public void onItemLongClick(int position) {
@@ -2542,50 +2546,47 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
     public void onItemLongClick(int position) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        if(lanEn){
-            builder.setMessage(en[16])
-                    .setPositiveButton(en[17], new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            deleteImage(position, MainActivity.this);
-                            Toast.makeText(MainActivity.this, en[17] + imageLables.get(position) + en[18], Toast.LENGTH_SHORT).show();
+        if (lanEn) {
+            builder.setMessage(en[16]).setPositiveButton(en[17], new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    deleteImage(position, MainActivity.this);
+                    Toast.makeText(MainActivity.this, en[17] + imageLables.get(position) + en[18], Toast.LENGTH_SHORT).show();
 
-                        }
-                    })
-                    .setNegativeButton(en[18], new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog, do nothing
-                        }
-                    });
+                }
+            }).setNegativeButton(en[18], new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog, do nothing
+                }
+            });
             // Create the AlertDialog object and return it
             AlertDialog dialog = builder.create();
             dialog.show();
-        }else {
-            builder.setMessage(cz[16])
-                    .setPositiveButton(cz[17], new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            deleteImage(position, MainActivity.this);
-                            Toast.makeText(MainActivity.this, cz[17] + imageLables.get(position) + cz[18], Toast.LENGTH_SHORT).show();
+        } else {
+            builder.setMessage(cz[16]).setPositiveButton(cz[17], new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    deleteImage(position, MainActivity.this);
+                    Toast.makeText(MainActivity.this, cz[17] + imageLables.get(position) + cz[18], Toast.LENGTH_SHORT).show();
 
-                        }
-                    })
-                    .setNegativeButton(cz[18], new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog, do nothing
-                        }
-                    });
+                }
+            }).setNegativeButton(cz[18], new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog, do nothing
+                }
+            });
             // Create the AlertDialog object and return it
             AlertDialog dialog = builder.create();
             dialog.show();
         }
 
 
-
     }
+
     public void registerClient() {
         showRegistrationWindow();
     }
+
     private void showRegistrationWindow() {
         // Inflate the registration layout
         View registrationView = LayoutInflater.from(this).inflate(R.layout.registration_window, null);
@@ -2627,6 +2628,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         registrationDialog = builder.create();
         registrationDialog.show();
     }
+
     private boolean isValidInput(String email, String username) {
         // Implement your validation logic here
         boolean isEmailValid = !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
@@ -2718,11 +2720,10 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         if (zipUri != null) {
             // Copy the ZIP file to the app's private storage and extract its contents
             copyZipFileToAppsFolder(zipUri);
-        }else {
+        } else {
             Toast.makeText(this, "Bad Uri", Toast.LENGTH_SHORT).show();
         }
     }
-
 
 
     private void copyZipFileToAppsFolder(Uri uri) {
@@ -2774,6 +2775,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
         }
     }
+
     // Helper method to extract the file name from the URI
     private String getFileNameFromUri(Uri uri) {
         String fileName = null;
@@ -2796,6 +2798,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
         return fileName;
     }
+
     private void loadBundleFromZip(Uri zipUri) {
         try {
             // Open the zip file for reading
@@ -2857,6 +2860,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Toast.makeText(this, "Error loading bundle.csv from zip", Toast.LENGTH_SHORT).show();
         }
     }
+
     private void appendBundleDataToExistingArrays(List<Integer> bundleIds, List<String> bundleLabels, List<Integer> bundleCounts, List<String> bundleImageNames) {
         // Find the maximum existing id value
         int maxId = 0;
@@ -2894,6 +2898,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         counts = newCounts;
         imageNames = newImageNames;
     }
+
     private void copyImagesFromBundleZip(Uri zipUri) {
         ZipInputStream zipInputStream = null;
         OutputStream outputStream = null;
@@ -2950,6 +2955,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
         }
     }
+
     private boolean isImageFile(String fileName) {
         String[] imageExtensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp"};
         for (String extension : imageExtensions) {
@@ -2959,10 +2965,12 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
         return false;
     }
+
     private boolean isImageFile(File file) {
         String name = file.getName().toLowerCase();
         return name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".gif") || name.endsWith(".bmp");
     }
+
     public void exportBundle() {
         try {
             // Get the current date in the desired format
@@ -2984,8 +2992,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
 
             // Open an output stream to write the ZIP file
-            try (OutputStream fos = getContentResolver().openOutputStream(uri);
-                 ZipOutputStream zos = new ZipOutputStream(fos)) {
+            try (OutputStream fos = getContentResolver().openOutputStream(uri); ZipOutputStream zos = new ZipOutputStream(fos)) {
 
                 // Get the external files directory where the app's files are stored
                 File externalFilesDir = getExternalFilesDir(null);
@@ -3024,6 +3031,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             System.err.println("Error exporting bundle: " + e.getMessage());
         }
     }
+
     private void adjustIdsInBundleCsv(File bundleCsvFile) {
         try {
             // Read the contents of the bundle CSV file
@@ -3044,6 +3052,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             System.err.println("Error adjusting IDs in bundle.csv: " + e.getMessage());
         }
     }
+
     private void copyFile(File sourceFile, File destFile) throws IOException {
         FileInputStream fis = new FileInputStream(sourceFile);
         FileOutputStream fos = new FileOutputStream(destFile);
@@ -3055,6 +3064,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         fis.close();
         fos.close();
     }
+
     private void addFileToZip(ZipOutputStream zos, File file, String entryName) throws IOException {
         if (file.exists()) {
             FileInputStream fis = new FileInputStream(file);
@@ -3108,6 +3118,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             initializeMainActivity();
         }
     }
+
     @SuppressLint("StaticFieldLeak")
     private void clearGlideCache(final Context context) {
         Glide.get(context).clearMemory();
@@ -3134,6 +3145,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
         }.execute();
     }
+
     private void clearAndReloadAdapter() {
         // Clear the adapter completely
 
@@ -3151,6 +3163,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         adapter.updateData(images, imageLables);
         adapter.notifyDataSetChanged();
     }
+
     private void updateIdsInCSV() {
         StringBuilder csvData = new StringBuilder("id,label,count,imageName\n");
 
@@ -3186,6 +3199,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             e.printStackTrace();
         }
     }
+
     private void removeFromCSV(int position) {
         // Read the contents of the CSV file into a list
         List<String> csvLines = new ArrayList<>();
@@ -3219,11 +3233,13 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             e.printStackTrace();
         }
     }
+
     private void pickPdfFile() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("application/pdf");
         startActivityForResult(intent, PICK_PDF_REQUEST);
     }
+
     private String getPDFFileNameWithoutExtension(Uri uri) {
         String fileName = null;
         String scheme = uri.getScheme();
@@ -3245,6 +3261,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         }
         return fileName;
     }
+
     private void extractImagesFromPDF(Uri pdfUri) {
         try {
             // Get the PDF file name
@@ -3287,6 +3304,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Toast.makeText(this, "Failed to extract images from PDF", Toast.LENGTH_SHORT).show();
         }
     }
+
     public void selectIndividualImages(String imageName) {
         // Construct the source file path
         File sourceFile = new File(getExternalFilesDir(null), "PDF_IMAGES/" + imageName);
@@ -3296,8 +3314,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
         try {
             // Start UCrop activity
-            UCrop uCrop = UCrop.of(Uri.fromFile(sourceFile), Uri.fromFile(destinationFile))
-                    .withAspectRatio(1, 1);// Aspect ratio (optional)
+            UCrop uCrop = UCrop.of(Uri.fromFile(sourceFile), Uri.fromFile(destinationFile)).withAspectRatio(1, 1);// Aspect ratio (optional)
 
             uCrop.start(MainActivity.this, UCrop.REQUEST_CROP); // Start UCrop activity with a request code
 
@@ -3308,6 +3325,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             Toast.makeText(this, "Failed to crop image", Toast.LENGTH_SHORT).show();
         }
     }
+
     public void removeImagesFromRootFolder() {
 
         // Get the directory of the app's private folder
