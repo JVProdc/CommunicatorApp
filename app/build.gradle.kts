@@ -8,10 +8,10 @@ android {
 
     defaultConfig {
         applicationId = "cz.CommunicatorApp"
-        minSdk = 30
+        minSdk = 31
         targetSdk = 33
         versionCode = 1
-        versionName = "1.2.1"
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
