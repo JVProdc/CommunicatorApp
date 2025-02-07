@@ -9,13 +9,25 @@
     android:theme="@style/ComunicatorThame"
     tools:context=".MainActivity">
 
+
+    <TextView
+        android:id="@+id/battery_percentage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="8sp"
+        android:layout_marginEnd="20dp"
+        android:layout_alignParentRight="true"
+        android:textColor="@android:color/black"
+        android:text="."
+        />
+
     <LinearLayout
         android:id="@+id/selectedImagesContainer"
         android:layout_width="match_parent"
         android:layout_height="120dp"
         android:layout_marginStart="5dp"
         android:layout_marginEnd="120dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/stroke_background"
         android:orientation="horizontal" />
 
@@ -25,7 +37,7 @@
         android:layout_height="120dp"
         android:layout_alignEnd="@id/selectedImagesContainer"
         android:layout_marginEnd="-120dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:scaleType="centerCrop"
         android:src="@drawable/delete_button" />
 

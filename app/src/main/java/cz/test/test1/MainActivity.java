@@ -17,11 +17,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -33,6 +35,7 @@ import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -63,6 +66,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -174,8 +178,8 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
 
     private File destinationFile;
-    String[] cz = {"Přidat Obrázek", "Jazyk: CZ", "Přidat PDF", "Seřadit Obrázky", "Hlas Zapnutý", "Hlas Vypnutý", "Zrušit", "Popisek nemůže být prázdný", "Zamítli jste oprávnění", "Maximální počet obrázků: ", "Přidat sestavu", "Exportovat sestavu", "Můj plán", "OK", "Další obrázek", "Další PDF", "Are you sure to delete the image?", "Image ", " was deleted.", "Yes", "No"};
-    String[] en = {"Add Image", "Language: EN", "Add PDF", "Sort Image", "Voice Assist: ON", "Voice Assist: OFF", "Cancel", "Label can not be empty", "You have dined the permission", "Maximum number of images: ", "Add Bundle", "Export Bundle", "My plan", "OK", "Next Image", "Next PDF", "Opravdu chcete obrázek odstranit?", "Obrázek ", " byl odstraněn", "Ano", "Ne"}; //16
+    String[] cz = {"Přidat Obrázek", "Jazyk: CZ", "Přidat PDF", "Seřadit Obrázky", "Hlas Zapnutý", "Hlas Vypnutý", "Zrušit", "Popisek nemůže být prázdný", "Zamítli jste oprávnění", "Maximální počet obrázků: ", "Přidat sestavu", "Exportovat sestavu", "Můj plán", "OK", "Další obrázek", "Další PDF", "Are you sure to delete the image?", "Image ", " was deleted.", "Yes", "No", "Battery: "};
+    String[] en = {"Add Image", "Language: EN", "Add PDF", "Sort Image", "Voice Assist: ON", "Voice Assist: OFF", "Cancel", "Label can not be empty", "You have dined the permission", "Maximum number of images: ", "Add Bundle", "Export Bundle", "My plan", "OK", "Next Image", "Next PDF", "Opravdu chcete obrázek odstranit?", "Obrázek ", " byl odstraněn", "Ano", "Ne", "Baterie: "}; //16
 
 
     public int SelectedDay = 0;
@@ -215,6 +219,9 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
 
     public String pathToLastAddedImage;
 
+    private TextView batteryTextView;
+    private BroadcastReceiver batteryReceiver;
+
     @SuppressLint({"MissingInflatedId", "WrongViewCast"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,6 +231,9 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         selectedImagesContainer = findViewById(R.id.selectedImagesContainer);
         deleteButton = findViewById(R.id.deleteButton);
         recyclerView = findViewById(R.id.gallery_recycler);
+
+
+        batteryTextView = findViewById(R.id.battery_percentage);
 
 
         images = new ArrayList<>();
@@ -276,6 +286,32 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
             }
         });
 
+
+
+        batteryReceiver = new BroadcastReceiver() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+                if (level >= 0 && scale > 0) {
+                    int batteryPct = (level * 100) / scale;
+                    if(lanEn) {
+                        batteryTextView.setText( cz[21] + batteryPct + "%");
+                    } else {
+                        batteryTextView.setText( en[21] + batteryPct + "%");
+                    }
+
+                }
+            }
+        };
+
+        // Register the BroadcastReceiver for battery changes
+        registerReceiver(batteryReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+
+
+
         checkPermissionsRead();
         loadSettings();
         sortCSVByCount();
@@ -287,12 +323,18 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         loadImagesFromPlanCSV();
         loadImages(imageLables);
         startPeriodicTask();
-
         Toast.makeText(this, "Today is: " + getTodayDay(), Toast.LENGTH_SHORT).show();
         SelectedDay = currentDayOfWeek;
 
         if (!clientRegistered) {
             registerClient();
+        }
+    }
+
+    private void fetchBatteryLevel() {
+        Intent intent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        if (intent != null) {
+            batteryReceiver.onReceive(this, intent); // Manually trigger onReceive
         }
     }
 
@@ -372,6 +414,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
                 } else if (itemId == R.id.menu_language) {
                     lanEn = !lanEn;
                     saveSettings();
+                    fetchBatteryLevel();
 
                     if (lanEn) {
                         item.setTitle(en[1]);

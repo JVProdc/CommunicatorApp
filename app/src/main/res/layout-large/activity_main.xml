@@ -11,6 +11,20 @@
     android:background="@color/background"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/battery_percentage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:layout_marginEnd="20dp"
+        android:layout_alignParentRight="true"
+        android:textColor="@android:color/black"
+        android:text="."
+        />
+
+
+
+
 
     <LinearLayout
         android:id="@+id/selectedImagesContainer"
@@ -18,7 +32,7 @@
         android:layout_height="200dp"
         android:layout_marginStart="5dp"
         android:layout_marginEnd="200dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="15dp"
         android:background="@drawable/stroke_background"
         android:orientation="horizontal" >
 
@@ -30,7 +44,7 @@
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_alignEnd="@+id/selectedImagesContainer"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="-200dp"
         android:scaleType="centerCrop"
         android:src="@drawable/delete_button"
