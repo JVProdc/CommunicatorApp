@@ -1669,7 +1669,7 @@ public class MainActivity extends AppCompatActivity implements GalleryAdapter.On
         positiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String customLabel = input.getText().toString().trim().replaceAll("[^a-zA-Z0-9\\s]", "");
+                String customLabel = input.getText().toString().trim().replaceAll("[^\\p{L}0-9\\s]", "");
 
                 if (!TextUtils.isEmpty(customLabel)) {
                     // Capitalize the first letter of the label
